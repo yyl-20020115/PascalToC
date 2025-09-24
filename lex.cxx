@@ -1723,8 +1723,8 @@ static char *yy_last_accepting_cpos;
 #define yymore() yymore_used_but_not_detected
 #define YY_MORE_ADJ 0
 char *yytext;
-# line 1 "lex.l"
-# line 2 "lex.l"
+//# line  1 "lex.l"
+//# line  2 "lex.l"
 
 #include "token.h"
 #include "util.h"
@@ -2057,7 +2057,7 @@ YY_DECL
 	register char *yy_cp, *yy_bp;
 	register int yy_act;
 
-# line 269 "lex.l"
+//# line  269 "lex.l"
 
 
 
@@ -2141,22 +2141,22 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_USER_ACTION
-# line 271 "lex.l"
+//# line  271 "lex.l"
 BEGIN(incl);
 	YY_BREAK
 case 2:
 YY_USER_ACTION
-# line 272 "lex.l"
+//# line  272 "lex.l"
 BEGIN(incl);
 	YY_BREAK
 case 3:
 YY_USER_ACTION
-# line 273 "lex.l"
+//# line  273 "lex.l"
 BEGIN(use); /* Turbo Pascal */
 	YY_BREAK
 case 4:
 YY_USER_ACTION
-# line 275 "lex.l"
+//# line  275 "lex.l"
 {  /* skip whitespaces */
     char* p = yytext; 
     while(*p != '\0') { 
@@ -2166,7 +2166,7 @@ YY_USER_ACTION
 	YY_BREAK
 case 5:
 YY_USER_ACTION
-# line 282 "lex.l"
+//# line  282 "lex.l"
 { /* skip comments */
     char* p = yytext; 
     while(*p != '\0') { 
@@ -2176,7 +2176,7 @@ YY_USER_ACTION
 	YY_BREAK
 case 6:
 YY_USER_ACTION
-# line 289 "lex.l"
+//# line  289 "lex.l"
 { 
                   /* got the include file name */
     char *fname = dprintf("%s.pas", yytext);
@@ -2224,14 +2224,14 @@ YY_USER_ACTION
 	YY_BREAK
 case 7:
 YY_USER_ACTION
-# line 333 "lex.l"
+//# line  333 "lex.l"
 {
     BEGIN(INITIAL);     // To leave include state
 }    
 	YY_BREAK
 case 8:
 YY_USER_ACTION
-# line 338 "lex.l"
+//# line  338 "lex.l"
 { 
     error(line, pos, file_name, "unrecognized token: %s\n",
 		yytext); 
@@ -2239,7 +2239,7 @@ YY_USER_ACTION
 	YY_BREAK
 case 9:
 YY_USER_ACTION
-# line 346 "lex.l"
+//# line  346 "lex.l"
 {  /* eat the whitespace */
     char* p = yytext; 
     while(*p != '\0') { 
@@ -2249,7 +2249,7 @@ YY_USER_ACTION
 	YY_BREAK
 case 10:
 YY_USER_ACTION
-# line 352 "lex.l"
+//# line  352 "lex.l"
 { 
                   /* got the include file name */
     BEGIN(INITIAL);     // To leave include state
@@ -2285,7 +2285,7 @@ YY_USER_ACTION
 	YY_BREAK
 case 11:
 YY_USER_ACTION
-# line 385 "lex.l"
+//# line  385 "lex.l"
 { 
     error(line, pos, file_name, "unrecognized token: %s\n",
 		yytext); 
@@ -2293,7 +2293,7 @@ YY_USER_ACTION
 	YY_BREAK
 case 12:
 YY_USER_ACTION
-# line 390 "lex.l"
+//# line  390 "lex.l"
 {
     char *fname = include_name (yytext+3);
     char *xname;
@@ -2327,7 +2327,7 @@ YY_USER_ACTION
 case YY_STATE_EOF(INITIAL):
 case YY_STATE_EOF(incl):
 case YY_STATE_EOF(use):
-# line 420 "lex.l"
+//# line  420 "lex.l"
 {
     if (scanner.empty()) { 
 	return -1;  // MAGIC ! (< 0 means end of files)
@@ -2341,157 +2341,157 @@ case YY_STATE_EOF(use):
 	YY_BREAK
 case 13:
 YY_USER_ACTION
-# line 431 "lex.l"
+//# line  431 "lex.l"
 { return process_comments(); }
 	YY_BREAK
 case 14:
 YY_USER_ACTION
-# line 432 "lex.l"
+//# line  432 "lex.l"
 { return process_comments(); }
 	YY_BREAK
 case 15:
 YY_USER_ACTION
-# line 433 "lex.l"
+//# line  433 "lex.l"
 { return process_comments(); }
 	YY_BREAK
 case 16:
 YY_USER_ACTION
-# line 435 "lex.l"
+//# line  435 "lex.l"
 { return tkn(TKN_LPAR); }
 	YY_BREAK
 case 17:
 YY_USER_ACTION
-# line 436 "lex.l"
+//# line  436 "lex.l"
 { return tkn(TKN_RPAR); }
 	YY_BREAK
 case 18:
 YY_USER_ACTION
-# line 437 "lex.l"
+//# line  437 "lex.l"
 { text = "["; return tkn(TKN_LBR);  }
 	YY_BREAK
 case 19:
 YY_USER_ACTION
-# line 438 "lex.l"
+//# line  438 "lex.l"
 { text = "]"; return tkn(TKN_RBR);  }
 	YY_BREAK
 case 20:
 YY_USER_ACTION
-# line 439 "lex.l"
+//# line  439 "lex.l"
 { return tkn(TKN_LBR);  }
 	YY_BREAK
 case 21:
 YY_USER_ACTION
-# line 440 "lex.l"
+//# line  440 "lex.l"
 { return tkn(TKN_RBR);  }
 	YY_BREAK
 case 22:
 YY_USER_ACTION
-# line 441 "lex.l"
+//# line  441 "lex.l"
 { return tkn(TKN_MUL);  }
 	YY_BREAK
 case 23:
 YY_USER_ACTION
-# line 442 "lex.l"
+//# line  442 "lex.l"
 { return tkn(TKN_PLUS); }
 	YY_BREAK
 case 24:
 YY_USER_ACTION
-# line 443 "lex.l"
+//# line  443 "lex.l"
 { return tkn(TKN_MINUS);}
 	YY_BREAK
 case 25:
 YY_USER_ACTION
-# line 444 "lex.l"
+//# line  444 "lex.l"
 { return tkn(TKN_C_SHR); }
 	YY_BREAK
 case 26:
 YY_USER_ACTION
-# line 445 "lex.l"
+//# line  445 "lex.l"
 { return tkn(TKN_C_SHL);}
 	YY_BREAK
 case 27:
 YY_USER_ACTION
-# line 446 "lex.l"
+//# line  446 "lex.l"
 { return tkn(TKN_C_AND);}
 	YY_BREAK
 case 28:
 YY_USER_ACTION
-# line 447 "lex.l"
+//# line  447 "lex.l"
 { return tkn(TKN_C_OR);}
 	YY_BREAK
 case 29:
 YY_USER_ACTION
-# line 448 "lex.l"
+//# line  448 "lex.l"
 { return tkn(TKN_LETMUL);  }
 	YY_BREAK
 case 30:
 YY_USER_ACTION
-# line 449 "lex.l"
+//# line  449 "lex.l"
 { return tkn(TKN_LETADD); }
 	YY_BREAK
 case 31:
 YY_USER_ACTION
-# line 450 "lex.l"
+//# line  450 "lex.l"
 { return tkn(TKN_LETSUB);}
 	YY_BREAK
 case 32:
 YY_USER_ACTION
-# line 451 "lex.l"
+//# line  451 "lex.l"
 { return tkn(TKN_LETSHR); }
 	YY_BREAK
 case 33:
 YY_USER_ACTION
-# line 452 "lex.l"
+//# line  452 "lex.l"
 { return tkn(TKN_LETSHL);}
 	YY_BREAK
 case 34:
 YY_USER_ACTION
-# line 453 "lex.l"
+//# line  453 "lex.l"
 { return tkn(TKN_LETAND);}
 	YY_BREAK
 case 35:
 YY_USER_ACTION
-# line 454 "lex.l"
+//# line  454 "lex.l"
 { return tkn(TKN_LETOR);}
 	YY_BREAK
 case 36:
 YY_USER_ACTION
-# line 455 "lex.l"
+//# line  455 "lex.l"
 { return tkn(TKN_LETDIV);}
 	YY_BREAK
 case 37:
 YY_USER_ACTION
-# line 456 "lex.l"
+//# line  456 "lex.l"
 { return tkn(TKN_C_NOT);}
 	YY_BREAK
 case 38:
 YY_USER_ACTION
-# line 457 "lex.l"
+//# line  457 "lex.l"
 { return tkn(TKN_COMMA);}
 	YY_BREAK
 case 39:
 YY_USER_ACTION
-# line 458 "lex.l"
+//# line  458 "lex.l"
 { return tkn(TKN_DOT);  }
 	YY_BREAK
 case 40:
 YY_USER_ACTION
-# line 459 "lex.l"
+//# line  459 "lex.l"
 { return tkn(TKN_DOTS); }
 	YY_BREAK
 case 41:
 YY_USER_ACTION
-# line 460 "lex.l"
+//# line  460 "lex.l"
 { return tkn(TKN_DIVR);  }
 	YY_BREAK
 case 42:
 YY_USER_ACTION
-# line 461 "lex.l"
+//# line  461 "lex.l"
 { return turbo_pascal ? tkn(TKN_ADDR) : tkn(TKN_HEAP); }
 	YY_BREAK
 case 43:
 YY_USER_ACTION
-# line 462 "lex.l"
+//# line  462 "lex.l"
 { if (turbo_pascal && !type_or_var_context
 		  && curr_token->tag != TKN_RBR && curr_token->tag != TKN_RPAR
 		  && curr_token->tag != TKN_REF 
@@ -2505,62 +2505,62 @@ YY_USER_ACTION
 	YY_BREAK
 case 44:
 YY_USER_ACTION
-# line 472 "lex.l"
+//# line  472 "lex.l"
 { return tkn(TKN_LET);  }
 	YY_BREAK
 case 45:
 YY_USER_ACTION
-# line 473 "lex.l"
+//# line  473 "lex.l"
 { return tkn(TKN_COLON);}
 	YY_BREAK
 case 46:
 YY_USER_ACTION
-# line 474 "lex.l"
+//# line  474 "lex.l"
 { return tkn(TKN_SEMICOLON); }
 	YY_BREAK
 case 47:
 YY_USER_ACTION
-# line 475 "lex.l"
+//# line  475 "lex.l"
 { return tkn(TKN_LE);  }
 	YY_BREAK
 case 48:
 YY_USER_ACTION
-# line 476 "lex.l"
+//# line  476 "lex.l"
 { return tkn(TKN_GE);  }
 	YY_BREAK
 case 49:
 YY_USER_ACTION
-# line 477 "lex.l"
+//# line  477 "lex.l"
 { return tkn(TKN_LT);  }
 	YY_BREAK
 case 50:
 YY_USER_ACTION
-# line 478 "lex.l"
+//# line  478 "lex.l"
 { return tkn(TKN_GT);  }
 	YY_BREAK
 case 51:
 YY_USER_ACTION
-# line 479 "lex.l"
+//# line  479 "lex.l"
 { return tkn(TKN_EQ);  }
 	YY_BREAK
 case 52:
 YY_USER_ACTION
-# line 480 "lex.l"
+//# line  480 "lex.l"
 { return tkn(TKN_NE);  }
 	YY_BREAK
 case 53:
 YY_USER_ACTION
-# line 483 "lex.l"
+//# line  483 "lex.l"
 { return tkn(TKN_RCONST); }
 	YY_BREAK
 case 54:
 YY_USER_ACTION
-# line 484 "lex.l"
+//# line  484 "lex.l"
 { return tkn(TKN_ICONST);  } 
 	YY_BREAK
 case 55:
 YY_USER_ACTION
-# line 486 "lex.l"
+//# line  486 "lex.l"
 { 
                char lc_buf[MAX_ID_LENGTH];
 	       char *src = yytext, *dst = lc_buf; 
@@ -2608,22 +2608,22 @@ YY_USER_ACTION
 	YY_BREAK
 case 56:
 YY_USER_ACTION
-# line 532 "lex.l"
+//# line  532 "lex.l"
 { return tkn(TKN_SCONST); }  
 	YY_BREAK
 case 57:
 YY_USER_ACTION
-# line 534 "lex.l"
+//# line  534 "lex.l"
 { return tkn(TKN_SPACE); }   
 	YY_BREAK
 case 58:
 YY_USER_ACTION
-# line 536 "lex.l"
+//# line  536 "lex.l"
 { return tkn(TKN_LN); } 
 	YY_BREAK
 case 59:
 YY_USER_ACTION
-# line 538 "lex.l"
+//# line  538 "lex.l"
 { 
                 error(line, pos, file_name, "unrecognized token: %s\n",
 		      yytext); 
@@ -2631,7 +2631,7 @@ YY_USER_ACTION
 	YY_BREAK
 case 60:
 YY_USER_ACTION
-# line 543 "lex.l"
+//# line  543 "lex.l"
 ECHO;
 	YY_BREAK
 
@@ -3328,7 +3328,7 @@ void *ptr;
 	{
 	free( ptr );
 	}
-# line 543 "lex.l"
+//# line  543 "lex.l"
 
 
 void scan_ctx::push() { 
