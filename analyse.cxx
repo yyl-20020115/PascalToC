@@ -100,7 +100,8 @@ int main() {
 	FILE* out = fopen(RECURSIVE_PROC_FILE, "w");
 
 	if (in == NULL || out == NULL) {
-		fputs("Error while opening files...\n", stderr);
+		//fputs("Error while opening files...\n", stderr);
+		fputs("USAGE: CGANAL.exe CALL_GRAPH_FILE RECURSIVE_PROC_FILE\n", stderr);
 		return 1;
 	}
 	char callee[256];
