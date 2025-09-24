@@ -11,7 +11,8 @@ public:
 	proc_desc* callee;
 public:
 	call_spec(proc_desc* desc, call_spec* chain)
-		:next(chain), callee(desc){ }
+		:next(chain), callee(desc) {
+	}
 };
 
 #define HASH_TABLE_SIZE 1987 

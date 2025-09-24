@@ -3,7 +3,7 @@
  by  GNU Bison version 1.25
   */
 #define YYERROR_VERBOSE 1
-//#define YYDEBUG 1
+  //#define YYDEBUG 1
 #define YYBISON 1  /* Identify Bison output.  */
 
 #define yyparse zzparse
