@@ -151,6 +151,7 @@ bool  copy_array;
 bool  comment_tags;
 bool  use_namespaces;
 bool  smart_union;
+bool  add_parens;
 char* pascall;
 char path_sep;
 
@@ -217,6 +218,8 @@ static void scan_opt(int argc, char** argv) {
 	  "Place in comments tags of Pascal variant records" },
 	{ &smart_union, NULL, "-smartunion", NULL,
 	  "Convert variant records with empty fixed part to unions" },
+	{ &add_parens, NULL, "-parens", NULL, 
+	  "Add () after unknown symbol to make a function call"},
 	{ &use_namespaces, NULL, "-namespace", NULL,
 	  "Place Turbo Pascal units in separate namespaces" },
 	{ NULL, &pascall, "-pascall", "",

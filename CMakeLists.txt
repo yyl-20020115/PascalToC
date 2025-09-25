@@ -2,6 +2,10 @@ cmake_minimum_required(VERSION 3.10)
  
 project(PTOC VERSION 1.0)
 
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED True)
+set(CMAKE_GENERATOR_PLATFORM Win32)
+
 add_definitions(-D_CRT_SECURE_NO_WARNINGS)
 
 include_directories(. ./WinBGI)
@@ -25,17 +29,12 @@ set(SRC_FILES
     lex.cxx 
     token.cxx 
     dprintf.cxx
+    main.cxx
  )
-
-
-add_library(PTOC_LIB STATIC ${SRC_FILES})
-
 
 add_subdirectory(WinBGI)
 
-add_executable(PTOC
-    main.cxx
-)
+add_executable(PTOC ${SRC_FILES})
 
 add_executable(CGANAL
     main.h
@@ -43,9 +42,5 @@ add_executable(CGANAL
 )
 
 
-set(CMAKE_CXX_STANDARD 11)
-set(CMAKE_CXX_STANDARD_REQUIRED True)
-set(CMAKE_GENERATOR_PLATFORM Win32)
-
-target_link_libraries(PTOC PRIVATE PTOC_LIB WinBGI)
+target_link_libraries(PTOC PRIVATE WinBGI)
 

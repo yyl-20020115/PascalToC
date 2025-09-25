@@ -39,6 +39,7 @@ extern bool copy_array;
 extern bool comment_tags;
 extern bool use_namespaces;
 extern bool smart_union;
+extern bool add_parens;
 extern char* pascall;
 extern char path_sep;
 

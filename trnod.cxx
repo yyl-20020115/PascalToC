@@ -452,9 +452,9 @@ pcall_node::pcall_node(expr_node* fcall)
 
 int pcall_node::attrib(int)
 {
-	int ret = fcall->attrib(ctx_statement);
-	if (ret == ATTRIB_UNDEFINED_ID) {
-		if (false && (fcall->l_tkn != NULL)) {
+	int att = fcall->attrib(ctx_statement);
+	if (att == ATTRIB_UNDEFINED_ID) {
+		if (add_parens && (fcall->l_tkn != NULL)) {
 			token* next = fcall->l_tkn->next_relevant();
 			if (next != NULL && next->tag == TKN_SEMICOLON
 				&& fcall->l_tkn->out_text!=NULL) {
@@ -464,11 +464,11 @@ int pcall_node::attrib(int)
 					= dprintf("%s()", fcall->l_tkn->out_text);
 				free(ptr);
 
-				ret = ATTRIB_UNDEFINED_ID;
+				att = ATTRIB_UNDEFINED_ID;
 			}
 		}
 	}
-	return ret;
+	return att;
 }
 
 int pcall_node::translate(int)
@@ -814,9 +814,25 @@ assign_node::assign_node(expr_node* lval, token* assign, expr_node* rval)
 
 int assign_node::attrib(int)
 {
-	lval->attrib(ctx_lvalue);
-	rval->attrib(lval->type && lval->type->tag == tp_proc
+	int att = 0;
+	att = lval->attrib(ctx_lvalue);
+	att = rval->attrib(lval->type && lval->type->tag == tp_proc
 		? ctx_procptr : ctx_rvalue);
+	if (att == ATTRIB_UNDEFINED_ID) {
+		if (add_parens && (rval->l_tkn != NULL)) {
+			token* next = rval->l_tkn->next_relevant();
+			if (next != NULL && next->tag == TKN_SEMICOLON
+				&& rval->l_tkn->out_text != NULL) {
+				//NOTICE: add () before ";"
+				char* ptr = rval->l_tkn->out_text;
+				rval->l_tkn->out_text
+					= dprintf("%s()", rval->l_tkn->out_text);
+				free(ptr);
+
+				att = ATTRIB_UNDEFINED_ID;
+			}
+		}
+	}
 	if (lval->type && lval->type->tag == tp_set) {
 		rval->type = lval->type->get_typedef();
 	}
