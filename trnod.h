@@ -30,7 +30,8 @@ enum {
   ctx_toascii       // convertion of number to string
 };
   
-
+#define ATTRIB_NORMAL       0
+#define ATTRIB_UNDEFINED_ID -1
 
 class decl_node;
 class expr_node;

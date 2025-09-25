@@ -452,9 +452,23 @@ pcall_node::pcall_node(expr_node* fcall)
 
 int pcall_node::attrib(int)
 {
-	fcall->attrib(ctx_statement);
-	return 0;
+	int ret = fcall->attrib(ctx_statement);
+	if (ret == ATTRIB_UNDEFINED_ID) {
+		if (false && (fcall->l_tkn != NULL)) {
+			token* next = fcall->l_tkn->next_relevant();
+			if (next != NULL && next->tag == TKN_SEMICOLON
+				&& fcall->l_tkn->out_text!=NULL) {
+				//NOTICE: add () before ";"
+				char* ptr = fcall->l_tkn->out_text;
+				fcall->l_tkn->out_text 
+					= dprintf("%s()", fcall->l_tkn->out_text);
+				free(ptr);
 
+				ret = ATTRIB_UNDEFINED_ID;
+			}
+		}
+	}
+	return ret;
 }
 
 int pcall_node::translate(int)
@@ -1319,6 +1333,8 @@ int atom_expr_node::attrib(int ctx)
 			warning(tkn, "undefined identifier '%s'", tkn->in_text);
 			type = &void_type;
 			with = NULL;
+			this->l_tkn = tkn;
+			return ATTRIB_UNDEFINED_ID;
 		}
 	}
 	return 0;
@@ -2651,6 +2667,7 @@ fcall_node::fcall_node(expr_node* fptr, token* lpar, expr_node* args,
 
 int fcall_node::attrib(int ctx)
 {
+	int attrib_ret = ATTRIB_NORMAL;
 	if (fptr->tag == tn_atom && ((atom_expr_node*)fptr)->tkn->tag != TKN_IDENT)
 	{
 		if (args) {
@@ -2720,7 +2737,7 @@ int fcall_node::attrib(int ctx)
 		return 0;
 	}
 normal_call:
-	fptr->attrib(ctx_apply);
+	attrib_ret = fptr->attrib(ctx_apply);
 	if (fptr->type->tag == tp_proc) {
 		proc_tp* prc = (proc_tp*)fptr->type->get_typedef();
 		type = prc->res_type;
@@ -2761,6 +2778,9 @@ normal_call:
 				&& ((atom_expr_node*)fptr)->var->tag == symbol::s_type))
 		{
 			warning(lpar, "function not defined");
+			if (attrib_ret == ATTRIB_UNDEFINED_ID) {
+				attrib_ret = 0;
+			}
 		}
 		for (expr_node* e = args; e != NULL; e = e->next) {
 			e->attrib(expr_ctx);
