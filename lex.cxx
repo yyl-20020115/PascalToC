@@ -1816,6 +1816,21 @@ static use_ctx* use_chain;
 int tkn(int tag) {
 	curr_token = new token(text ? text : strdup(yytext),
 		tag, line, pos, nm);
+	if(token::dummy.prev!=NULL 
+		&& token::dummy.prev->in_text!=NULL
+		&& 0 == strcmp(token::dummy.prev->in_text, "(")
+		&& token::dummy.prev->prev!=NULL
+		&& token::dummy.prev->prev->in_text!=NULL
+		&& 0 == strcmp(token::dummy.prev->prev->in_text, "sizeof")
+		&& curr_token->tag != TKN_IDENT)
+	{
+		//NOTICE:FIXME:
+		//sizeof(String) is not recognized well
+		//we fix this by back tracing,
+		//however, this is not a good way
+		//we need to redesign the grammar and the parser
+		curr_token->tag = TKN_IDENT;
+	}
 	nm = NULL; text = NULL;
 	for (char* c = yytext; *c != 0; c++) {
 		if (*c == '\n') { line++; pos = 0; }
