@@ -44,9 +44,9 @@ void node::swallow_semicolon()
 }
 
 
-void node::attrib(int) {}
+int node::attrib(int) { return 0; }
 
-void node::translate(int) {}
+int node::translate(int) { return 0; }
 
 #define CONS1(a) this->a = a
 #define CONS2(a,b) CONS1(a), this->b = b 
@@ -69,13 +69,15 @@ import_list_node::import_list_node(token* lpar, token_list* params, token* rpar)
 	CONS3(lpar, params, rpar);
 }
 
-void import_list_node::attrib(int)
+int import_list_node::attrib(int)
 {
+	return 0;
 }
 
-void import_list_node::translate(int)
+int import_list_node::translate(int)
 {
 	token::remove(lpar, rpar);
+	return 0;
 }
 
 program_node::program_node(token* program, token* name,
@@ -85,7 +87,7 @@ program_node::program_node(token* program, token* name,
 	CONS6(program, name, params, semi, block, end);
 }
 
-void program_node::attrib(int)
+int program_node::attrib(int)
 {
 	curr_proc = main = new proc_tp;
 	main->res_type = &integer_type;
@@ -95,9 +97,10 @@ void program_node::attrib(int)
 		b_ring::top_b_ring = main;
 	}
 	block->attrib(ctx_program);
+	return 0;
 }
 
-void program_node::translate(int)
+int program_node::translate(int)
 {
 	if (program != NULL) {
 		token::disable(program, semi);
@@ -120,6 +123,7 @@ void program_node::translate(int)
 	if (1/*pio_init*/) {
 		first_stmt->prepend("pio_initialize(argc, argv);\n");
 	}
+	return 0;
 }
 
 bool unit_node::interface_part;
@@ -136,7 +140,7 @@ unit_node::unit_node(token* t_unit, token* t_name, token* t_semi,
 		unit_def, initializer, t_end, t_dot);
 }
 
-void unit_node::attrib(int)
+int unit_node::attrib(int)
 {
 	decl_node* dcl;
 
@@ -156,9 +160,10 @@ void unit_node::attrib(int)
 		curr_proc = main = new proc_tp;
 		initializer->attrib(ctx_program);
 	}
+	return 0;
 }
 
-void unit_node::translate(int)
+int unit_node::translate(int)
 {
 	decl_node* dcl;
 	char* unit_name = "";
@@ -205,6 +210,7 @@ void unit_node::translate(int)
 	}
 	t_implementation->cat = CAT_WSPC;
 	t_interface->cat = CAT_WSPC;
+	return 0;
 }
 
 
@@ -215,14 +221,15 @@ module_node::module_node(token* program, token* name,
 	CONS5(program, name, params, semi, decls);
 }
 
-void module_node::attrib(int)
+int module_node::attrib(int)
 {
 	for (decl_node* dcl = decls; dcl != NULL; dcl = dcl->next) {
 		dcl->attrib(ctx_module);
 	}
+	return 0;
 }
 
-void module_node::translate(int)
+int module_node::translate(int)
 {
 	if (program != NULL) {
 		token::disable(program, semi);
@@ -230,6 +237,7 @@ void module_node::translate(int)
 	for (decl_node* dcl = decls; dcl != NULL; dcl = dcl->next) {
 		dcl->translate(ctx_module);
 	}
+	return 0;
 }
 
 
@@ -240,16 +248,17 @@ block_node::block_node(decl_node* decls, compound_node* body)
 	CONS2(decls, body);
 }
 
-void block_node::attrib(int ctx)
+int block_node::attrib(int ctx)
 {
 	for (decl_node* dcl = decls; dcl != NULL; dcl = dcl->next) {
 		dcl->attrib(ctx);
 	}
 	body->attrib(ctx);
+	return 0;
 }
 
 
-void block_node::translate(int ctx)
+int block_node::translate(int ctx)
 {
 	for (decl_node* dcl = decls; dcl != NULL; dcl = dcl->next) {
 		dcl->translate(ctx);
@@ -257,6 +266,7 @@ void block_node::translate(int ctx)
 	body->translate(ctx);
 	f_tkn = decls ? decls->f_tkn : body->f_tkn;
 	l_tkn = body->l_tkn;
+	return 0;
 }
 
 
@@ -268,17 +278,20 @@ label_node::label_node(token* ident, token* colon, stmt_node* stmt)
 	CONS3(ident, colon, stmt);
 }
 
-void label_node::attrib(int ctx)
+int label_node::attrib(int ctx)
 {
 	stmt->attrib(ctx);
+	return 0;
 }
 
-void label_node::translate(int ctx)
+int label_node::translate(int ctx)
 {
 	ident->set_trans(dprintf("L%s", ident->out_text));
 	stmt->translate(ctx);
 	f_tkn = ident;
 	l_tkn = stmt->l_tkn;
+	return 0;
+
 }
 
 with_node::with_node(token* t_with, expr_node* ptrs, token* t_do, stmt_node* body)
@@ -339,7 +352,7 @@ static void push_with_context(b_ring* block, expr_node* ptr, stmt_node* body)
 	}
 }
 
-void with_node::attrib(int)
+int with_node::attrib(int)
 {
 	b_ring* block = new b_ring(b_ring::block);
 
@@ -347,11 +360,12 @@ void with_node::attrib(int)
 	nested_counter = nested;
 	push_with_context(block, ptrs, body);
 	b_ring::pop();
+	return 0;
 }
 
 
 
-void with_node::translate(int ctx)
+int with_node::translate(int ctx)
 {
 	token* stmt1;
 
@@ -367,7 +381,7 @@ void with_node::translate(int ctx)
 	{
 		token::disable(t_with, t_do);
 		t_do->disappear();
-		return;
+		return 0;
 	}
 	if (body->is_compound()) {
 		t_with->set_trans("{\n");
@@ -428,6 +442,7 @@ void with_node::translate(int ctx)
 		nested_counter += 1;
 	}
 	swallow_semicolon();
+	return 0;
 }
 
 pcall_node::pcall_node(expr_node* fcall)
@@ -435,17 +450,20 @@ pcall_node::pcall_node(expr_node* fcall)
 	CONS1(fcall);
 }
 
-void pcall_node::attrib(int)
+int pcall_node::attrib(int)
 {
 	fcall->attrib(ctx_statement);
+	return 0;
+
 }
 
-void pcall_node::translate(int)
+int pcall_node::translate(int)
 {
 	fcall->translate(ctx_statement);
 	f_tkn = fcall->f_tkn;
 	l_tkn = fcall->l_tkn;
 	force_semicolon();
+	return 0;
 }
 
 
@@ -454,15 +472,16 @@ read_node::read_node(token* t_read, expr_group_node* params)
 	CONS2(t_read, params);
 }
 
-void read_node::attrib(int)
+int read_node::attrib(int)
 {
 	if (params) {
 		params->attrib(ctx_lvalue);
 	}
+	return 0;
 }
 
 
-void read_node::translate(int)
+int read_node::translate(int)
 {
 	f_tkn = l_tkn = t_read;
 
@@ -492,7 +511,7 @@ void read_node::translate(int)
 				token::disable(t_read, file->l_tkn->next_relevant());
 				params->rpar->disable();
 				force_semicolon();
-				return;
+				return 0;
 			}
 			if (prm->type->tag == tp_text) {
 				prm->translate(ctx_access);
@@ -608,6 +627,7 @@ void read_node::translate(int)
 		}
 	}
 	force_semicolon();
+	return 0;
 }
 
 
@@ -616,18 +636,19 @@ write_node::write_node(token* t_write, write_list_node* params)
 	CONS2(t_write, params);
 }
 
-void write_node::attrib(int)
+int write_node::attrib(int)
 {
 	if (params) {
 		params->attrib(ctx_value);
 	}
+	return 0;
 }
 
 
 static char* write_format;
 static int   n_write_params;
 
-void write_node::translate(int)
+int write_node::translate(int)
 {
 	f_tkn = l_tkn = t_write;
 
@@ -651,7 +672,7 @@ void write_node::translate(int)
 				token::disable(t_write, file->l_tkn->next_relevant());
 				params->rpar->disable();
 				force_semicolon();
-				return;
+				return 0;
 			}
 			if (prm->type->tag == tp_text) {
 				prm->translate(ctx_access);
@@ -739,6 +760,7 @@ void write_node::translate(int)
 		}
 	}
 	force_semicolon();
+	return 0;
 }
 
 compound_node::compound_node(token* t_begin, stmt_node* body, token* t_end)
@@ -746,14 +768,15 @@ compound_node::compound_node(token* t_begin, stmt_node* body, token* t_end)
 	CONS3(t_begin, body, t_end);
 }
 
-void compound_node::attrib(int)
+int compound_node::attrib(int)
 {
 	for (stmt_node* stmt = body; stmt != NULL; stmt = stmt->next) {
 		stmt->attrib(ctx_statement);
 	}
+	return 0;
 }
 
-void compound_node::translate(int)
+int compound_node::translate(int)
 {
 	f_tkn = t_begin;
 	l_tkn = t_end;
@@ -763,6 +786,7 @@ void compound_node::translate(int)
 	t_begin->set_trans("{");
 	t_end->set_trans("}");
 	swallow_semicolon();
+	return 0;
 }
 
 bool compound_node::is_compound() { return TRUE; }
@@ -774,7 +798,7 @@ assign_node::assign_node(expr_node* lval, token* assign, expr_node* rval)
 	CONS3(lval, assign, rval);
 }
 
-void assign_node::attrib(int)
+int assign_node::attrib(int)
 {
 	lval->attrib(ctx_lvalue);
 	rval->attrib(lval->type && lval->type->tag == tp_proc
@@ -782,9 +806,10 @@ void assign_node::attrib(int)
 	if (lval->type && lval->type->tag == tp_set) {
 		rval->type = lval->type->get_typedef();
 	}
+	return 0;
 }
 
-void assign_node::translate(int)
+int assign_node::translate(int)
 {
 	stmt = this;
 	lval->translate(ctx_lvalue);
@@ -795,7 +820,7 @@ void assign_node::translate(int)
 		lval->l_tkn->append(", ");
 		l_tkn = rval->l_tkn->append(")");
 		force_semicolon();
-		return;
+		return 0;
 	}
 	rval->translate(lval->type && lval->type->tag == tp_proc
 		? ctx_procptr : ctx_rvalue);
@@ -807,7 +832,7 @@ void assign_node::translate(int)
 		l_tkn = rval->l_tkn;
 		assign->disable();
 		force_semicolon();
-		return;
+		return 0;
 	}
 	f_tkn = lval->f_tkn;
 	l_tkn = rval->l_tkn;
@@ -870,6 +895,7 @@ void assign_node::translate(int)
 		}
 	}
 	force_semicolon();
+	return 0;
 }
 
 
@@ -878,16 +904,19 @@ goto_node::goto_node(token* t_goto, token* t_label)
 	CONS2(t_goto, t_label);
 }
 
-void goto_node::attrib(int)
+int goto_node::attrib(int)
 {
+	return 0;
+
 }
 
-void goto_node::translate(int)
+int goto_node::translate(int)
 {
 	t_label->set_trans(dprintf("L%s", t_label->out_text));
 	f_tkn = t_goto;
 	l_tkn = t_label;
 	force_semicolon();
+	return 0;
 }
 
 //--------------------------------------------------------------------
@@ -898,7 +927,7 @@ case_node::case_node(expr_node* list, token* coln, stmt_node* stmt)
 	next = NULL;
 }
 
-void case_node::attrib(int ctx)
+int case_node::attrib(int ctx)
 {
 	for (expr_node* e = list; e != NULL; e = e->next) {
 		e->attrib(ctx);
@@ -909,9 +938,10 @@ void case_node::attrib(int ctx)
 			st->attrib(ctx);
 		}
 	}
+	return 0;
 }
 
-void case_node::translate(int)
+int case_node::translate(int)
 {
 	if (list == NULL) {
 		assert(turbo_pascal ? coln->tag == TKN_ELSE : coln->tag == TKN_OTHERWISE);
@@ -944,6 +974,7 @@ void case_node::translate(int)
 			l_tkn = stmt->l_tkn->append(" break;");
 		}
 	}
+	return 0;
 }
 
 
@@ -953,15 +984,16 @@ switch_node::switch_node(token* t_case, expr_node* expr, token* t_of,
 	CONS5(t_case, expr, t_of, cases, t_end);
 }
 
-void switch_node::attrib(int)
+int switch_node::attrib(int)
 {
 	expr->attrib(ctx_condition);
 	for (case_node* c = cases; c != NULL; c = c->next) {
 		c->attrib(ctx_statement);
 	}
+	return 0;
 }
 
-void switch_node::translate(int)
+int switch_node::translate(int)
 {
 	f_tkn = t_case;
 	l_tkn = t_end;
@@ -977,6 +1009,7 @@ void switch_node::translate(int)
 	}
 	t_end->set_trans("}");
 	swallow_semicolon();
+	return 0;
 }
 
 if_node::if_node(token* t_if, expr_node* expr, token* t_then,
@@ -985,16 +1018,17 @@ if_node::if_node(token* t_if, expr_node* expr, token* t_then,
 	CONS6(t_if, expr, t_then, alt1, t_else, alt2);
 }
 
-void if_node::attrib(int)
+int if_node::attrib(int)
 {
 	expr->attrib(ctx_condition);
 	alt1->attrib(ctx_statement);
 	if (alt2) {
 		alt2->attrib(ctx_statement);
 	}
+	return 0;
 }
 
-void if_node::translate(int)
+int if_node::translate(int)
 {
 	expr->translate(ctx_condition);
 	f_tkn = t_if;
@@ -1009,6 +1043,7 @@ void if_node::translate(int)
 		alt2->translate(ctx_statement);
 		l_tkn = alt2->l_tkn;
 	}
+	return 0;
 }
 
 for_node::for_node(token* t_for, token* t_ident, token* t_asg,
@@ -1018,15 +1053,16 @@ for_node::for_node(token* t_for, token* t_ident, token* t_asg,
 	CONS8(t_for, t_ident, t_asg, from, t_to, till, t_do, body);
 }
 
-void for_node::attrib(int)
+int for_node::attrib(int)
 {
 	from->attrib(ctx_value);
 	till->attrib(ctx_value);
 	body->attrib(ctx_statement);
 	var = b_ring::search_cur(t_ident);
+	return 0;
 }
 
-void for_node::translate(int ctx)
+int for_node::translate(int ctx)
 {
 	if (var != NULL) {
 		var->translate(t_ident);
@@ -1062,6 +1098,7 @@ void for_node::translate(int ctx)
 	body->translate(ctx);
 	f_tkn = t_for;
 	l_tkn = body->l_tkn;
+	return 0;
 }
 
 while_node::while_node(token* t_while, expr_node* expr, token* t_do,
@@ -1070,13 +1107,14 @@ while_node::while_node(token* t_while, expr_node* expr, token* t_do,
 	CONS4(t_while, expr, t_do, body);
 }
 
-void while_node::attrib(int ctx)
+int while_node::attrib(int ctx)
 {
 	expr->attrib(ctx_condition);
 	body->attrib(ctx);
+	return 0;
 }
 
-void while_node::translate(int ctx)
+int while_node::translate(int ctx)
 {
 	expr->translate(ctx_condition);
 	if (expr->tag != tn_group) {
@@ -1087,6 +1125,7 @@ void while_node::translate(int ctx)
 	body->translate(ctx);
 	f_tkn = t_while;
 	l_tkn = body->l_tkn;
+	return 0;
 }
 
 repeat_node::repeat_node(token* t_repeat, stmt_node* body, token* t_until,
@@ -1095,15 +1134,16 @@ repeat_node::repeat_node(token* t_repeat, stmt_node* body, token* t_until,
 	CONS4(t_repeat, body, t_until, expr);
 }
 
-void repeat_node::attrib(int ctx)
+int repeat_node::attrib(int ctx)
 {
 	for (stmt_node* stmt = body; stmt != NULL; stmt = stmt->next) {
 		stmt->attrib(ctx);
 	}
 	expr->attrib(ctx_condition);
+	return 0;
 }
 
-void repeat_node::translate(int ctx)
+int repeat_node::translate(int ctx)
 {
 	bool body_is_block =
 		body != NULL && body->is_compound() && body->next == NULL;
@@ -1125,6 +1165,7 @@ void repeat_node::translate(int ctx)
 		l_tkn = expr->l_tkn->append(")");
 	}
 	force_semicolon();
+	return 0;
 }
 
 return_node::return_node(token* t_return)
@@ -1132,11 +1173,12 @@ return_node::return_node(token* t_return)
 	CONS1(t_return);
 }
 
-void return_node::attrib(int)
+int return_node::attrib(int)
 {
+	return 0;
 }
 
-void return_node::translate(int)
+int return_node::translate(int)
 {
 	l_tkn = f_tkn = t_return;
 	if (curr_proc->is_function()) {
@@ -1156,6 +1198,7 @@ void return_node::translate(int)
 		}
 	}
 	force_semicolon();
+	return 0;
 }
 
 empty_node::empty_node(token* last)
@@ -1163,12 +1206,13 @@ empty_node::empty_node(token* last)
 	CONS1(last);
 }
 
-void empty_node::attrib(int)
+int empty_node::attrib(int)
 {
 	f_tkn = l_tkn = last;
+	return 0;
 }
 
-void empty_node::translate(int)
+int empty_node::translate(int)
 {
 	token* last = l_tkn;
 	token* prev = last->next->prev_relevant();
@@ -1176,6 +1220,7 @@ void empty_node::translate(int)
 		force_semicolon();
 	}
 	l_tkn->set_pos(last);
+	return 0;
 }
 
 //
@@ -1198,7 +1243,7 @@ atom_expr_node::atom_expr_node(token* tkn) : expr_node(tn_atom)
 	CONS1(tkn);
 }
 
-void atom_expr_node::attrib(int ctx)
+int atom_expr_node::attrib(int ctx)
 {
 	if (turbo_pascal && tkn->name->tag == TKN_SELF) {
 		assert(proc_def_node::self != NULL);
@@ -1276,9 +1321,10 @@ void atom_expr_node::attrib(int ctx)
 			with = NULL;
 		}
 	}
+	return 0;
 }
 
-void atom_expr_node::translate(int ctx)
+int atom_expr_node::translate(int ctx)
 {
 	l_tkn = f_tkn = tkn;
 
@@ -1289,7 +1335,7 @@ void atom_expr_node::translate(int ctx)
 		else {
 			tkn->set_trans("(*this)");
 		}
-		return;
+		return 0;
 	}
 	else if (turbo_pascal && tkn->name->tag == TKN_EXIT) {
 		if (curr_proc && curr_proc->res_type) {
@@ -1304,11 +1350,11 @@ void atom_expr_node::translate(int ctx)
 		else {
 			tkn->set_trans("return");
 		}
-		return;
+		return 0;
 	}
 	else if (turbo_pascal && tkn->name->tag == TKN_ABSTRACT) {
 		tkn->set_trans("assert(\"abstract method is called\",false)");
-		return;
+		return 0;
 	}
 	if (var != NULL) {
 		var->translate(tkn);
@@ -1320,7 +1366,7 @@ void atom_expr_node::translate(int ctx)
 		else if (var->type->tag == tp_proc) {
 			if (turbo_pascal && tkn->name->tag == TKN_HALT) {
 				tkn->set_trans(ctx == ctx_apply ? "exit" : "exit(0)");
-				return;
+				return 0;
 			}
 			proc_tp* prc = (proc_tp*)var->type->get_typedef();
 			if (ctx != ctx_procptr && ctx != ctx_apply && ctx != ctx_lvalue) {
@@ -1421,6 +1467,7 @@ void atom_expr_node::translate(int ctx)
 			l_tkn = tkn->append("()");
 		}
 	}
+	return 0;
 }
 
 literal_node::literal_node(token* value_tkn, int tag)
@@ -1443,7 +1490,7 @@ static long btoi(char* s)
 	return val;
 }
 
-void integer_node::attrib(int)
+int integer_node::attrib(int)
 {
 	type = &integer_type;
 
@@ -1481,9 +1528,10 @@ void integer_node::attrib(int)
 		sscanf(value_tkn->in_text, "%d", &value);
 		radix = 10;
 	}
+	return 0;
 }
 
-void integer_node::translate(int)
+int integer_node::translate(int)
 {
 	f_tkn = l_tkn = value_tkn;
 
@@ -1498,24 +1546,27 @@ void integer_node::translate(int)
 		value_tkn->set_trans(dprintf("%#x", value));
 		break;
 	}
+	return 0;
 }
 
 
 real_node::real_node(token* value_tkn) : literal_node(value_tkn, tn_realnum) {}
 
-void real_node::attrib(int)
+int real_node::attrib(int)
 {
 	type = &real_type;
+	return 0;
 }
 
-void real_node::translate(int)
+int real_node::translate(int)
 {
 	f_tkn = l_tkn = value_tkn;
+	return 0;
 }
 
 string_node::string_node(token* value_tkn) : literal_node(value_tkn, tn_string) {}
 
-void string_node::attrib(int)
+int string_node::attrib(int)
 {
 	char* s = value_tkn->out_text;
 
@@ -1528,9 +1579,10 @@ void string_node::attrib(int)
 	else {
 		type = &string_type;
 	}
+	return 0;
 }
 
-void string_node::translate(int ctx)
+int string_node::translate(int ctx)
 {
 	char* s = value_tkn->out_text;
 
@@ -1624,7 +1676,7 @@ void string_node::translate(int ctx)
 			*d++ = '}';
 			*d++ = '\0';
 			value_tkn->set_trans(buf);
-			return;
+			return 0;
 		}
 		else {
 			char* buf = new char[strlen(s) * 2 + 1];
@@ -1720,6 +1772,7 @@ void string_node::translate(int ctx)
 			value_tkn->set_trans(buf);
 		}
 	}
+	return 0;
 }
 
 set_elem_node::set_elem_node(expr_node* item)
@@ -1727,13 +1780,14 @@ set_elem_node::set_elem_node(expr_node* item)
 	CONS1(item);
 }
 
-void set_elem_node::attrib(int ctx)
+int set_elem_node::attrib(int ctx)
 {
 	item->attrib(ctx);
 	type = item->type;
+	return 0;
 }
 
-void set_elem_node::translate(int ctx)
+int set_elem_node::translate(int ctx)
 {
 	item->translate(ctx);
 	f_tkn = item->f_tkn;
@@ -1750,6 +1804,7 @@ void set_elem_node::translate(int ctx)
 		f_tkn = f_tkn->prepend("ELEM(");
 		l_tkn = l_tkn->append(")");
 	}
+	return 0;
 }
 
 set_range_node::set_range_node(expr_node* low, token* dots, expr_node* high)
@@ -1757,14 +1812,15 @@ set_range_node::set_range_node(expr_node* low, token* dots, expr_node* high)
 	CONS3(low, dots, high);
 }
 
-void set_range_node::attrib(int ctx)
+int set_range_node::attrib(int ctx)
 {
 	low->attrib(ctx);
 	high->attrib(ctx);
 	type = low->type;
+	return 0;
 }
 
-void set_range_node::translate(int ctx)
+int set_range_node::translate(int ctx)
 {
 	low->translate(ctx);
 	high->translate(ctx);
@@ -1780,6 +1836,7 @@ void set_range_node::translate(int ctx)
 	}
 	l_tkn = high->l_tkn->append(")");
 	dots->set_trans(",");
+	return 0;
 }
 
 set_node::set_node(token* t_lbr, set_item_node* items, token* t_rbr)
@@ -1788,15 +1845,16 @@ set_node::set_node(token* t_lbr, set_item_node* items, token* t_rbr)
 	CONS3(t_lbr, items, t_rbr);
 }
 
-void set_node::attrib(int)
+int set_node::attrib(int)
 {
 	for (set_item_node* item = items; item != NULL; item = item->next) {
 		item->attrib(ctx_value);
 	}
 	type = new set_tp(items ? items->type : &integer_type);
+	return 0;
 }
 
-void set_node::translate(int)
+int set_node::translate(int)
 {
 	f_tkn = t_lbr;
 	l_tkn = t_rbr;
@@ -1819,7 +1877,7 @@ void set_node::translate(int)
 				t_lbr->set_trans("0");
 				t_rbr->disable();
 			}
-			return;
+			return 0;
 		}
 		else {
 			t_lbr->set_trans("setof(");
@@ -1836,6 +1894,7 @@ void set_node::translate(int)
 		}
 	}
 	t_rbr->set_trans(items ? ", eos)" : "eos)");
+	return 0;
 }
 
 idx_expr_node::idx_expr_node(expr_node* arr, token* t_lbr, expr_node* indices,
@@ -1845,7 +1904,7 @@ idx_expr_node::idx_expr_node(expr_node* arr, token* t_lbr, expr_node* indices,
 	CONS4(arr, t_lbr, indices, t_rbr);
 }
 
-void idx_expr_node::attrib(int ctx)
+int idx_expr_node::attrib(int ctx)
 {
 	arr->attrib(ctx == ctx_lvalue ? ctx_lvalarray : ctx_array);
 	type = arr->type;
@@ -1856,9 +1915,10 @@ void idx_expr_node::attrib(int ctx)
 		}
 		e->attrib(ctx_value);
 	}
+	return 0;
 }
 
-void idx_expr_node::translate(int ctx)
+int idx_expr_node::translate(int ctx)
 {
 	arr->translate(ctx == ctx_lvalue ? ctx_lvalarray : ctx_array);
 	f_tkn = arr->f_tkn;
@@ -1962,6 +2022,7 @@ void idx_expr_node::translate(int ctx)
 			e->l_tkn->append("][");
 		}
 	}
+	return 0;
 }
 
 deref_expr_node::deref_expr_node(expr_node* ptr, token* op)
@@ -1970,7 +2031,7 @@ deref_expr_node::deref_expr_node(expr_node* ptr, token* op)
 	CONS2(ptr, op);
 }
 
-void deref_expr_node::attrib(int)
+int deref_expr_node::attrib(int)
 {
 	ptr->attrib(ctx_array);
 	type = ptr->type;
@@ -1980,9 +2041,10 @@ void deref_expr_node::attrib(int)
 	else {
 		warning(op, "dereferencing not pointer type");
 	}
+	return 0;
 }
 
-void deref_expr_node::translate(int ctx)
+int deref_expr_node::translate(int ctx)
 {
 	ptr->translate(ctx_array);
 	f_tkn = ptr->f_tkn;
@@ -2031,6 +2093,7 @@ void deref_expr_node::translate(int ctx)
 		}
 		op->disable();
 	}
+	return 0;
 }
 
 
@@ -2041,7 +2104,7 @@ access_expr_node::access_expr_node(expr_node* rec, token* pnt, token* field)
 	CONS3(rec, pnt, field);
 }
 
-void access_expr_node::attrib(int)
+int access_expr_node::attrib(int)
 {
 	rec->attrib(ctx_access);
 	if (rec->type != NULL && (rec->type->tag == tp_record || rec->type->tag == tp_object || rec->type->tag == tp_unit)) {
@@ -2060,9 +2123,10 @@ void access_expr_node::attrib(int)
 	else {
 		type = recfld->type;
 	}
+	return 0;
 }
 
-void access_expr_node::translate(int ctx)
+int access_expr_node::translate(int ctx)
 {
 	rec->translate(ctx_access);
 	f_tkn = rec->f_tkn;
@@ -2081,6 +2145,7 @@ void access_expr_node::translate(int ctx)
 	{
 		l_tkn = l_tkn->append("()");
 	}
+	return 0;
 }
 
 //---------------------------------------------------------
@@ -2091,13 +2156,14 @@ address_node::address_node(token* t_adr, expr_node* var)
 	CONS2(t_adr, var);
 }
 
-void address_node::attrib(int)
+int address_node::attrib(int)
 {
 	var->attrib(ctx_lvalue);
 	type = new ref_tp(var->type);
+	return 0;
 }
 
-void address_node::translate(int)
+int address_node::translate(int)
 {
 	if (turbo_pascal && var->tag == tn_self) {
 		l_tkn = f_tkn;
@@ -2109,18 +2175,20 @@ void address_node::translate(int)
 		t_adr->set_trans("&");
 		l_tkn = var->l_tkn;
 	}
+	return 0;
 }
 
 //---------------------------------------------------------
 
-void case_range_node::attrib(int ctx)
+int case_range_node::attrib(int ctx)
 {
 	from->attrib(ctx);
 	to->attrib(ctx);
 	type = from->type;
+	return 0;
 }
 
-void case_range_node::translate(int ctx)
+int case_range_node::translate(int ctx)
 {
 	from->translate(ctx);
 	to->translate(ctx);
@@ -2133,13 +2201,14 @@ void case_range_node::translate(int ctx)
 			f_tkn = from->f_tkn->prepend(dprintf("RANGE_%d(", range));
 			l_tkn = to->l_tkn->append(")");
 			t_range->set_trans(",");
-			return;
+			return 0;
 		}
 	}
 	warning(t_range, "Conversion of case range item is correct only for GCC\n");
 	t_range->set_trans(" ... ");
 	f_tkn = from->f_tkn;
 	l_tkn = to->l_tkn;
+	return 0;
 }
 
 case_range_node::case_range_node(expr_node* from, token* t_range, expr_node* to)
@@ -2157,7 +2226,7 @@ op_node::op_node(int tag, expr_node* left, token* op, expr_node* right)
 }
 
 
-void op_node::attrib(int)
+int op_node::attrib(int)
 {
 	if (left) {
 		left->parent_tag = tag;
@@ -2233,6 +2302,7 @@ void op_node::attrib(int)
 	{
 		type = &varying_string_type;
 	}
+	return 0;
 }
 
 static char* cmp_op[] = { "==", "!=", ">", ">=", "<", "<=" };
@@ -2241,7 +2311,7 @@ static char* rcmp_op[] = { "==", "!=", "<", "<=", ">", ">=" };
 #define CMP_OP(c) cmp_op[(c)-tn_eq]
 #define RCMP_OP(c) rcmp_op[(c)-tn_eq]
 
-void op_node::translate(int)
+int op_node::translate(int)
 {
 	f_tkn = l_tkn = op;
 
@@ -2478,7 +2548,7 @@ void op_node::translate(int)
 						l_tkn = right->l_tkn->append(dprintf(") %s 0",
 							CMP_OP(tag)));
 					}
-					return;
+					return 0;
 				}
 			case tp_char:
 				if (right->type && right->type->is_array()) {
@@ -2533,7 +2603,7 @@ void op_node::translate(int)
 						break;
 					}
 				}
-				return;
+				return 0;
 			}
 		}
 		else { // language C++
@@ -2549,7 +2619,7 @@ void op_node::translate(int)
 				f_tkn = right->f_tkn;
 				l_tkn = left->l_tkn;
 				op->set_trans(RCMP_OP(tag));
-				return;
+				return 0;
 			}
 		}
 		op->set_trans(CMP_OP(tag));
@@ -2569,6 +2639,7 @@ void op_node::translate(int)
 			l_tkn = l_tkn->append(")");
 		}
 	}
+	return 0;
 }
 
 fcall_node::fcall_node(expr_node* fptr, token* lpar, expr_node* args,
@@ -2578,7 +2649,7 @@ fcall_node::fcall_node(expr_node* fptr, token* lpar, expr_node* args,
 	CONS4(fptr, lpar, args, rpar);
 }
 
-void fcall_node::attrib(int ctx)
+int fcall_node::attrib(int ctx)
 {
 	if (fptr->tag == tn_atom && ((atom_expr_node*)fptr)->tkn->tag != TKN_IDENT)
 	{
@@ -2646,7 +2717,7 @@ void fcall_node::attrib(int ctx)
 				}
 			}
 		}
-		return;
+		return 0;
 	}
 normal_call:
 	fptr->attrib(ctx_apply);
@@ -2695,9 +2766,10 @@ normal_call:
 			e->attrib(expr_ctx);
 		}
 	}
+	return 0;
 }
 
-void fcall_node::translate(int ctx)
+int fcall_node::translate(int ctx)
 {
 	l_tkn = rpar;
 
@@ -2856,7 +2928,7 @@ void fcall_node::translate(int ctx)
 			rpar->disable();
 			break;
 		}
-		return;
+		return 0;
 	}
 
 	fptr->translate(ctx_apply);
@@ -3052,6 +3124,7 @@ void fcall_node::translate(int ctx)
 			fptr->l_tkn->append("::make");
 		}
 	}
+	return 0;
 }
 
 
@@ -3060,14 +3133,16 @@ skipped_node::skipped_node(token* comma) : expr_node(tn_skip)
 	this->comma = comma;
 }
 
-void skipped_node::attrib(int)
+int skipped_node::attrib(int)
 {
 	type = &void_type;
+	return 0;
 }
 
-void skipped_node::translate(int)
+int skipped_node::translate(int)
 {
 	l_tkn = f_tkn = comma->append(" 0");
+	return 0;
 }
 
 
@@ -3078,14 +3153,15 @@ loophole_node::loophole_node(token* t_loophole, token* t_lpar, tpd_node* tpd,
 	CONS6(t_loophole, t_lpar, tpd, t_comma, expr, t_rpar);
 }
 
-void loophole_node::attrib(int ctx)
+int loophole_node::attrib(int ctx)
 {
 	tpd->attrib(ctx);
 	expr->attrib(ctx_access);
 	type = tpd->type;
+	return 0;
 }
 
-void loophole_node::translate(int ctx)
+int loophole_node::translate(int ctx)
 {
 	f_tkn = t_lpar;
 	l_tkn = t_rpar;
@@ -3109,6 +3185,7 @@ void loophole_node::translate(int ctx)
 	}
 	t_rpar->disable();
 	t_comma->disable();
+	return 0;
 }
 
 
@@ -3118,7 +3195,7 @@ field_init_node::field_init_node(token* t_field, token* t_coln, expr_node* value
 	next = NULL;
 }
 
-void field_init_node::attrib(tpexpr* record_type)
+int field_init_node::attrib(tpexpr* record_type)
 {
 	int ctx = ctx_constant;
 	if (record_type != NULL) {
@@ -3135,9 +3212,10 @@ void field_init_node::attrib(tpexpr* record_type)
 		}
 	}
 	value->attrib(ctx);
+	return 0;
 }
 
-void field_init_node::translate()
+int field_init_node::translate()
 {
 	value->translate(ctx_constant);
 	f_tkn = value->f_tkn;
@@ -3147,6 +3225,7 @@ void field_init_node::translate()
 	if (sep->tag == TKN_SEMICOLON) {
 		sep->set_trans(",");
 	}
+	return 0;
 }
 
 record_constant_node::record_constant_node(token* lpar, field_init_node* flist,
@@ -3156,7 +3235,7 @@ record_constant_node::record_constant_node(token* lpar, field_init_node* flist,
 	CONS3(lpar, flist, rpar);
 }
 
-void record_constant_node::attrib(int)
+int record_constant_node::attrib(int)
 {
 	tpexpr* record_type = type;
 	if (record_type != NULL && (record_type->tag == tp_record || record_type->tag == tp_object)) {
@@ -3165,9 +3244,10 @@ void record_constant_node::attrib(int)
 	for (field_init_node* val = flist; val != NULL; val = val->next) {
 		val->attrib(record_type);
 	}
+	return 0;
 }
 
-void record_constant_node::translate(int)
+int record_constant_node::translate(int)
 {
 	f_tkn = lpar;
 	l_tkn = rpar;
@@ -3176,6 +3256,7 @@ void record_constant_node::translate(int)
 	for (field_init_node* val = flist; val != NULL; val = val->next) {
 		val->translate();
 	}
+	return 0;
 }
 
 
@@ -3205,7 +3286,7 @@ static expr_node* aggregate_constant(expr_node* expr, symbol* component)
 	return NULL;
 }
 
-void expr_group_node::attrib(int ctx)
+int expr_group_node::attrib(int ctx)
 {
 	this->ctx = ctx;
 	if (type != NULL) {
@@ -3217,7 +3298,7 @@ void expr_group_node::attrib(int ctx)
 			{
 				e->attrib(ctx_constant);
 			}
-			return;
+			return 0;
 		}
 		else if (type->is_array()) {
 			tpexpr* elem_type = ((array_tp*)type->get_typedef())->elem_type;
@@ -3227,17 +3308,18 @@ void expr_group_node::attrib(int ctx)
 				e->type = elem_type;
 				e->attrib(ctx);
 			}
-			return;
+			return 0;
 		}
 	}
 	for (expr_node* e = expr; e != NULL; e = e->next) {
 		e->attrib(ctx);
 	}
 	type = expr->type;
+	return 0;
 }
 
 
-void expr_group_node::translate(int)
+int expr_group_node::translate(int)
 {
 	f_tkn = lpar;
 	l_tkn = rpar;
@@ -3253,6 +3335,7 @@ void expr_group_node::translate(int)
 	for (expr_node* e = expr; e != NULL; e = e->next) {
 		e->translate(ctx_constant);
 	}
+	return 0;
 }
 
 
@@ -3262,16 +3345,17 @@ write_list_node::write_list_node(token* lpar, write_param_node* vals,
 	CONS3(lpar, vals, rpar);
 }
 
-void write_list_node::attrib(int)
+int write_list_node::attrib(int)
 {
 	for (expr_node* prm = vals; prm != NULL; prm = prm->next)
 	{
 		prm->attrib(ctx_value);
 	}
+	return 0;
 }
 
 
-void write_list_node::translate(int)
+int write_list_node::translate(int)
 {
 	f_tkn = lpar;
 	l_tkn = rpar;
@@ -3280,6 +3364,7 @@ void write_list_node::translate(int)
 	{
 		prm->translate(ctx_value);
 	}
+	return 0;
 }
 
 
@@ -3291,7 +3376,7 @@ write_param_node::write_param_node(expr_node* val,
 	CONS5(val, t_coln1, width, t_coln2, prec);
 }
 
-void write_param_node::attrib(int ctx)
+int write_param_node::attrib(int ctx)
 {
 
 	val->attrib(ctx);
@@ -3302,6 +3387,7 @@ void write_param_node::attrib(int ctx)
 			prec->attrib(ctx_value);
 		}
 	}
+	return 0;
 }
 
 static char* make_fmt_string(char* src) {
@@ -3314,10 +3400,10 @@ static char* make_fmt_string(char* src) {
 		*dst++ = *src++;
 	}
 	*--dst = '\0'; // skip '"'
-	return strdup(buf);
+	return _strdup(buf);
 }
 
-void write_param_node::translate(int ctx)
+int write_param_node::translate(int ctx)
 {
 	val->translate(ctx);
 	f_tkn = val->f_tkn;
@@ -3325,7 +3411,7 @@ void write_param_node::translate(int ctx)
 
 	if (language_c) {
 
-		if (write_format == NULL) return;
+		if (write_format == NULL) return 0;
 		n_write_params += 1;
 
 		char fmt = '?';
@@ -3347,7 +3433,7 @@ void write_param_node::translate(int ctx)
 					token::disable(f_tkn, next->prev);
 				}
 				n_write_params -= 1;
-				return;
+				return 0;
 			}
 #if 1
 			fmt = 'z';
@@ -3378,7 +3464,7 @@ void write_param_node::translate(int ctx)
 					token::disable(f_tkn, next->prev);
 				}
 				n_write_params -= 1;
-				return;
+				return 0;
 			}
 			fmt = 'c';
 			break;
@@ -3460,6 +3546,7 @@ void write_param_node::translate(int ctx)
 			}
 		}
 	}
+	return 0;
 }
 
 
@@ -3474,13 +3561,15 @@ label_decl_part_node::label_decl_part_node(token* t_label,
 	CONS3(t_label, labels, t_semi);
 }
 
-void label_decl_part_node::attrib(int)
+int label_decl_part_node::attrib(int)
 {
+	return 0;
 }
 
-void label_decl_part_node::translate(int)
+int label_decl_part_node::translate(int)
 {
 	token::remove(t_label, t_semi);
+	return 0;
 }
 
 const_def_node* const_def_node::enumeration;
@@ -3491,7 +3580,7 @@ const_def_node::const_def_node(token* ident, token* equal,
 	CONS3(ident, equal, constant);
 }
 
-void const_def_node::attrib(int)
+int const_def_node::attrib(int)
 {
 	constant->attrib(ctx_constant);
 	sym = b_ring::add_cur(ident, symbol::s_const, constant->type);
@@ -3505,9 +3594,10 @@ void const_def_node::attrib(int)
 	{
 		sym->out_name->flags |= nm_entry::macro;
 	}
+	return 0;
 }
 
-void const_def_node::translate(int)
+int const_def_node::translate(int)
 {
 	constant->translate(ctx_constant);
 	if (curr_proc && curr_proc->make_all_constants_global
@@ -3585,6 +3675,7 @@ void const_def_node::translate(int)
 			->insert_b(f_tkn);
 		(new token((char*)0, TKN_END_SHIFT))->insert_a(l_tkn);
 	}
+	return 0;
 }
 
 typed_const_def_node::typed_const_def_node(token* ident, token* coln,
@@ -3595,7 +3686,7 @@ typed_const_def_node::typed_const_def_node(token* ident, token* coln,
 	CONS2(coln, tpd);
 }
 
-void typed_const_def_node::attrib(int)
+int typed_const_def_node::attrib(int)
 {
 	tpd->attrib(ctx_constant);
 	constant->type = tpd->type;
@@ -3608,9 +3699,10 @@ void typed_const_def_node::attrib(int)
 		sym->flags |= symbol::f_const;
 		sym->value = constant->value;
 	}
+	return 0;
 }
 
-void typed_const_def_node::translate(int)
+int typed_const_def_node::translate(int)
 {
 	constant->translate(ctx_constant);
 	tpd->translate(ctx_constant);
@@ -3634,6 +3726,7 @@ void typed_const_def_node::translate(int)
 			->insert_b(f_tkn);
 		(new token((char*)0, TKN_END_SHIFT))->insert_a(l_tkn);
 	}
+	return 0;
 }
 
 const_def_part_node::const_def_part_node(token* t_const, const_def_node* list)
@@ -3641,14 +3734,15 @@ const_def_part_node::const_def_part_node(token* t_const, const_def_node* list)
 	CONS2(t_const, list);
 }
 
-void const_def_part_node::attrib(int ctx)
+int const_def_part_node::attrib(int ctx)
 {
 	for (decl_node* def = list; def != NULL; def = def->next) {
 		def->attrib(ctx);
 	}
+	return 0;
 }
 
-void const_def_part_node::translate(int ctx)
+int const_def_part_node::translate(int ctx)
 {
 	f_tkn = l_tkn = t_const;
 	const_def_node::enumeration = NULL;
@@ -3670,6 +3764,7 @@ void const_def_part_node::translate(int ctx)
 			f_tkn->next_relevant()->pos))->insert_b(f_tkn);
 		(new token((char*)0, TKN_END_SHIFT))->insert_a(l_tkn);
 	}
+	return 0;
 }
 
 type_def_node::type_def_node(token* ident, token* equal, tpd_node* tpd)
@@ -3677,7 +3772,7 @@ type_def_node::type_def_node(token* ident, token* equal, tpd_node* tpd)
 	CONS3(ident, equal, tpd);
 }
 
-void type_def_node::attrib(int ctx)
+int type_def_node::attrib(int ctx)
 {
 	tpd->attrib(ctx);
 	tpexpr* type = new simple_tp(tpd->type);
@@ -3695,9 +3790,10 @@ void type_def_node::attrib(int ctx)
 	case tpd_node::tpd_object:
 		((object_tp*)tpd->type)->class_name = sym;
 	}
+	return 0;
 }
 
-void type_def_node::translate(int ctx)
+int type_def_node::translate(int ctx)
 {
 	tpd->translate(ctx);
 	sym->translate(ident);
@@ -3756,6 +3852,7 @@ void type_def_node::translate(int ctx)
 		ident->set_trans("typedef");
 	}
 	force_semicolon();
+	return 0;
 }
 
 
@@ -3764,7 +3861,7 @@ type_def_part_node::type_def_part_node(token* t_type, type_def_node* types)
 	CONS2(t_type, types);
 }
 
-void type_def_part_node::attrib(int ctx)
+int type_def_part_node::attrib(int ctx)
 {
 	for (decl_node* tpd = types; tpd != NULL; tpd = tpd->next) {
 		tpd->attrib(ctx);
@@ -3772,9 +3869,10 @@ void type_def_part_node::attrib(int ctx)
 	if (ctx == ctx_block && curr_proc) {
 		curr_proc->make_all_constants_global = TRUE;
 	}
+	return 0;
 }
 
-void type_def_part_node::translate(int ctx)
+int type_def_part_node::translate(int ctx)
 {
 	f_tkn = l_tkn = t_type;
 	t_type->disappear();
@@ -3795,6 +3893,7 @@ void type_def_part_node::translate(int ctx)
 			f_tkn->next_relevant()->pos))->insert_b(f_tkn);
 		(new token((char*)0, TKN_END_SHIFT))->insert_a(l_tkn);
 	}
+	return 0;
 }
 
 unit_spec_node::unit_spec_node(token* t_unit, token* t_name, token* t_semi,
@@ -3803,7 +3902,7 @@ unit_spec_node::unit_spec_node(token* t_unit, token* t_name, token* t_semi,
 	CONS5(t_unit, t_name, t_semi, t_interface, decls);
 }
 
-void unit_spec_node::attrib(int ctx)
+int unit_spec_node::attrib(int ctx)
 {
 	unit_tp* type = new unit_tp;
 	b_ring::global_b_ring.add(t_name->name, symbol::s_var, type);
@@ -3815,14 +3914,16 @@ void unit_spec_node::attrib(int ctx)
 		dcl->attrib(ctx);
 	}
 	b_ring::push(outer);
+	return 0;
 }
 
-void unit_spec_node::translate(int ctx)
+int unit_spec_node::translate(int ctx)
 {
 	for (decl_node* dcl = decls; dcl != NULL; dcl = dcl->next) {
 		dcl->translate(ctx);
 		l_tkn = dcl->l_tkn;
 	}
+	return 0;
 }
 
 
@@ -3832,7 +3933,7 @@ var_decl_node::var_decl_node(token_list* vars, token* coln, tpd_node* tpd)
 	scope = NULL;
 }
 
-void var_decl_node::attrib(int ctx)
+int var_decl_node::attrib(int ctx)
 {
 	tpexpr* tp;
 	if (tpd != NULL) {
@@ -3881,11 +3982,12 @@ void var_decl_node::attrib(int ctx)
 			curr_proc->add_param(tkn->var);
 		}
 	}
+	return 0;
 }
 
 static token* var_decl_coln; // align formal parameters of procedures
 
-void  var_decl_node::translate(int ctx)
+int  var_decl_node::translate(int ctx)
 {
 	tpexpr* tp;
 	if (tpd != NULL) {
@@ -4057,6 +4159,7 @@ void  var_decl_node::translate(int ctx)
 			(new token((char*)0, TKN_END_SHIFT))->insert_a(l_tkn);
 		}
 	}
+	return 0;
 }
 
 var_decl_part_node::var_decl_part_node(token* t_var, var_decl_node* vars)
@@ -4064,14 +4167,15 @@ var_decl_part_node::var_decl_part_node(token* t_var, var_decl_node* vars)
 	CONS2(t_var, vars);
 }
 
-void var_decl_part_node::attrib(int ctx)
+int var_decl_part_node::attrib(int ctx)
 {
 	for (decl_node* var = vars; var != NULL; var = var->next) {
 		var->attrib(ctx == ctx_valpar ? (int)ctx_varpar : ctx);
 	}
+	return 0;
 }
 
-void var_decl_part_node::translate(int ctx)
+int var_decl_part_node::translate(int ctx)
 {
 	f_tkn = l_tkn = t_var;
 	for (decl_node* var = vars; var != NULL; var = var->next) {
@@ -4099,6 +4203,7 @@ void var_decl_part_node::translate(int ctx)
 				"#define EXTERN extern\n");
 		}
 	}
+	return 0;
 }
 
 
@@ -4110,16 +4215,17 @@ var_origin_decl_node::var_origin_decl_node(token* t_ident,
 }
 
 
-void var_origin_decl_node::attrib(int ctx)
+int var_origin_decl_node::attrib(int ctx)
 {
 	tpd->attrib(ctx);
 	type = tpd->type;
 	sym = b_ring::add_cur(t_ident,
 		language_c ? symbol::s_ref : symbol::s_var, type);
 	addr->attrib(ctx_value);
+	return 0;
 }
 
-void var_origin_decl_node::translate(int ctx)
+int var_origin_decl_node::translate(int ctx)
 {
 	tpd->translate(ctx);
 	sym->translate(t_ident);
@@ -4153,6 +4259,7 @@ void var_origin_decl_node::translate(int ctx)
 			(new token((char*)0, TKN_END_SHIFT))->insert_a(l_tkn);
 		}
 	}
+	return 0;
 }
 
 
@@ -4161,14 +4268,15 @@ param_list_node::param_list_node(token* lpar, decl_node* params, token* rpar)
 	CONS3(lpar, params, rpar);
 }
 
-void param_list_node::attrib(int)
+int param_list_node::attrib(int)
 {
 	for (decl_node* dcl = params; dcl != NULL; dcl = dcl->next) {
 		dcl->attrib(ctx_valpar);
 	}
+	return 0;
 }
 
-void param_list_node::translate(int)
+int param_list_node::translate(int)
 {
 	f_tkn = lpar;
 	l_tkn = rpar;
@@ -4180,6 +4288,7 @@ void param_list_node::translate(int)
 		}
 	}
 	var_decl_coln = NULL;
+	return 0;
 }
 
 
@@ -4192,7 +4301,7 @@ proc_decl_node::proc_decl_node(token* t_proc, token* t_ident,
 	CONS5(t_proc, t_ident, params, t_coln, ret_type);
 }
 
-void proc_decl_node::attrib(int ctx)
+int proc_decl_node::attrib(int ctx)
 {
 	if (ret_type) ret_type->attrib(ctx);
 
@@ -4208,6 +4317,7 @@ void proc_decl_node::attrib(int ctx)
 		b_ring::pop();
 		curr_proc = save_proc;
 	}
+	return 0;
 }
 
 void proc_decl_node::insert_return_type() {
@@ -4331,7 +4441,7 @@ void proc_decl_node::insert_params() {
 }
 
 
-void proc_decl_node::translate(int)
+int proc_decl_node::translate(int)
 {
 	f_tkn = t_proc;
 
@@ -4343,6 +4453,7 @@ void proc_decl_node::translate(int)
 	if (l_tkn->next_relevant()->tag == TKN_SEMICOLON) {
 		l_tkn->next_relevant()->set_trans(",");
 	}
+	return 0;
 }
 
 proc_fwd_decl_node::proc_fwd_decl_node
@@ -4353,7 +4464,7 @@ proc_fwd_decl_node::proc_fwd_decl_node
 	CONS3(t_semi1, qualifiers, t_semi2);
 }
 
-void proc_fwd_decl_node::attrib(int ctx)
+int proc_fwd_decl_node::attrib(int ctx)
 {
 	if (ret_type) {
 		ret_type->attrib(ctx);
@@ -4406,9 +4517,10 @@ void proc_fwd_decl_node::attrib(int ctx)
 		b_ring::pop();
 		curr_proc = save_proc;
 	}
+	return 0;
 }
 
-void proc_fwd_decl_node::translate(int)
+int proc_fwd_decl_node::translate(int)
 {
 	f_tkn = t_proc;
 	l_tkn = t_semi1;
@@ -4431,6 +4543,7 @@ void proc_fwd_decl_node::translate(int)
 	if (qualifiers) {
 		token::remove(qualifiers->ident, t_semi2);
 	}
+	return 0;
 }
 
 
@@ -4448,7 +4561,7 @@ proc_def_node::proc_def_node
 	self = NULL;
 }
 
-void proc_def_node::attrib(int ctx)
+int proc_def_node::attrib(int ctx)
 {
 	if (ret_type) {
 		ret_type->attrib(ctx);
@@ -4512,9 +4625,10 @@ void proc_def_node::attrib(int ctx)
 		b_ring::pop();
 		self = NULL;
 	}
+	return 0;
 }
 
-void proc_def_node::translate(int ctx)
+int proc_def_node::translate(int ctx)
 {
 	f_tkn = t_proc;
 	l_tkn = t_semi3;
@@ -4613,6 +4727,7 @@ void proc_def_node::translate(int ctx)
 			insert_b(f_tkn);
 		(new token((char*)0, TKN_END_SHIFT))->insert_a(l_tkn);
 	}
+	return 0;
 }
 
 //
@@ -4625,7 +4740,7 @@ simple_tpd_node::simple_tpd_node(token* tkn) : tpd_node(tpd_simple)
 	this->tkn = tkn;
 }
 
-void simple_tpd_node::attrib(int ctx)
+int simple_tpd_node::attrib(int ctx)
 {
 	sym = b_ring::search_cur(tkn);
 	if (sym == NULL) {
@@ -4633,17 +4748,26 @@ void simple_tpd_node::attrib(int ctx)
 			type = new fwd_ref_tp(tkn);
 		}
 		else {
-			warning(tkn, "unknown type");
-			type = &void_type;
+			//NOTICE: predefined types
+			//if (tkn->in_text!=NULL && 0 == strcmp(tkn->in_text, "string")) {
+			//	type = &string_type;
+			//	tkn->tag = TKN_STRING;
+			//}
+			//else 
+			{
+				warning(tkn, "unknown type");
+				type = &void_type;
+			}
 		}
 	}
 	else {
 		type = sym->type;
 	}
+	return 0;
 }
 
 
-void simple_tpd_node::translate(int ctx)
+int simple_tpd_node::translate(int ctx)
 {
 	l_tkn = f_tkn = tkn;
 	if (sym != NULL) {
@@ -4654,6 +4778,7 @@ void simple_tpd_node::translate(int ctx)
 			f_tkn = tkn->prepend("struct ");
 		}
 	}
+	return 0;
 }
 
 fptr_tpd_node::fptr_tpd_node(token* t_proc, param_list_node* params,
@@ -4664,7 +4789,7 @@ fptr_tpd_node::fptr_tpd_node(token* t_proc, param_list_node* params,
 }
 
 
-void fptr_tpd_node::attrib(int ctx)
+int fptr_tpd_node::attrib(int ctx)
 {
 	if (ret_type) {
 		ret_type->attrib(ctx);
@@ -4678,9 +4803,10 @@ void fptr_tpd_node::attrib(int ctx)
 		b_ring::pop();
 		curr_proc = save_proc;
 	}
+	return 0;
 }
 
-void fptr_tpd_node::translate(int)
+int fptr_tpd_node::translate(int)
 {
 	f_tkn = t_proc;
 	if (ret_type) {
@@ -4707,6 +4833,7 @@ void fptr_tpd_node::translate(int)
 	else {
 		t_params = l_tkn = t_proc->append("()");
 	}
+	return 0;
 }
 
 
@@ -4716,7 +4843,7 @@ enum_tpd_node::enum_tpd_node(token* lpar, token_list* items, token* rpar)
 	CONS3(lpar, items, rpar);
 }
 
-void enum_tpd_node::attrib(int)
+int enum_tpd_node::attrib(int)
 {
 	int n = 0;
 	type = new enum_tp(this);
@@ -4733,10 +4860,11 @@ void enum_tpd_node::attrib(int)
 	}
 	((enum_tp*)type)->n_elems = n;
 	((enum_tp*)type)->first = items->var;
+	return 0;
 }
 
 
-void enum_tpd_node::translate(int)
+int enum_tpd_node::translate(int)
 {
 	f_tkn = lpar->prepend("enum ");
 	l_tkn = rpar;
@@ -4751,6 +4879,7 @@ void enum_tpd_node::translate(int)
 		rpar->prepend(", ");
 		rpar->prepend(((enum_tp*)type)->max);
 	}
+	return 0;
 }
 
 range_tpd_node::range_tpd_node(expr_node* low, token* dots, expr_node* high)
@@ -4759,7 +4888,7 @@ range_tpd_node::range_tpd_node(expr_node* low, token* dots, expr_node* high)
 	CONS3(low, dots, high);
 }
 
-void range_tpd_node::attrib(int)
+int range_tpd_node::attrib(int)
 {
 	low->attrib(ctx_value);
 	high->attrib(ctx_value);
@@ -4807,10 +4936,11 @@ void range_tpd_node::attrib(int)
 		rtp->size = 4;
 	}
 	type = rtp;
+	return 0;
 }
 
 
-void range_tpd_node::translate(int)
+int range_tpd_node::translate(int)
 {
 	low->translate(ctx_value);
 	high->translate(ctx_value);
@@ -4854,6 +4984,7 @@ void range_tpd_node::translate(int)
 	else {
 		token::remove(low->f_tkn, high->l_tkn);
 	}
+	return 0;
 }
 
 
@@ -4864,13 +4995,14 @@ type_index_node::type_index_node(tpd_node* tpd)
 	this->tpd = tpd;
 }
 
-void type_index_node::attrib(int ctx)
+int type_index_node::attrib(int ctx)
 {
 	tpd->attrib(ctx);
 	assert(tpd->tag == tpd_node::tpd_simple);
+	return 0;
 }
 
-void type_index_node::translate(int)
+int type_index_node::translate(int)
 {
 	f_tkn = l_tkn = ((simple_tpd_node*)tpd)->tkn;
 	tpexpr* type = tpd->type->get_typedef();
@@ -4922,6 +5054,7 @@ void type_index_node::translate(int)
 			warning(f_tkn, "Illegal type of index");
 		}
 	}
+	return 0;
 
 }
 
@@ -4931,13 +5064,14 @@ range_index_node::range_index_node(expr_node* low, token* dots,
 	CONS3(low, dots, high);
 }
 
-void range_index_node::attrib(int)
+int range_index_node::attrib(int)
 {
 	low->attrib(ctx_value);
 	high->attrib(ctx_value);
+	return 0;
 }
 
-void range_index_node::translate(int)
+int range_index_node::translate(int)
 {
 	low->translate(ctx_value);
 	high->translate(ctx_value);
@@ -4949,12 +5083,12 @@ void range_index_node::translate(int)
 		if (low->is_const_literal()) {
 			if (low->value == 1) {
 				token::remove(low->f_tkn, high->f_tkn->prev);
-				return;
+				return 0;
 			}
 			if (high->is_const_literal()) {
 				token::remove(low->f_tkn, high->f_tkn->prev);
 				high->f_tkn->set_trans(dprintf("%d", high->value - low->value + 1));
-				return;
+				return 0;
 			}
 		}
 		token::swap(low->f_tkn, low->l_tkn, high->f_tkn, high->l_tkn);
@@ -4965,6 +5099,7 @@ void range_index_node::translate(int)
 	else { // language C++
 		dots->set_trans(",");
 	}
+	return 0;
 }
 
 conformant_index_node::conformant_index_node(token* low, token* dots,
@@ -4974,20 +5109,22 @@ conformant_index_node::conformant_index_node(token* low, token* dots,
 	CONS5(low, dots, high, coln, tpd);
 }
 
-void conformant_index_node::attrib(int)
+int conformant_index_node::attrib(int)
 {
 	symbol* l = b_ring::add_cur(low, symbol::s_const, &integer_type);
 	symbol* h = b_ring::add_cur(high, symbol::s_const, &integer_type);
 	l->flags |= symbol::f_val_param;
 	h->flags |= symbol::f_val_param;
 	curr_array->set_conformant_dim(l, h);
+	return 0;
 }
 
-void conformant_index_node::translate(int)
+int conformant_index_node::translate(int)
 {
 
 	// last and first tokens are not calculated here since it is not possible
 	// (and not necessary)
+	return 0;
 }
 
 array_tpd_node::array_tpd_node(token* t_packed, token* t_array,
@@ -5007,14 +5144,15 @@ void array_tpd_node::set_indices_attrib(idx_node* idx)
 	idx->attrib(ctx_component);
 }
 
-void array_tpd_node::attrib(int)
+int array_tpd_node::attrib(int)
 {
 	eltd->attrib(ctx_component);
 	type = eltd->type;
 	set_indices_attrib(indices);
+	return 0;
 }
 
-void array_tpd_node::translate(int ctx)
+int array_tpd_node::translate(int ctx)
 {
 	f_tkn = t_array;
 
@@ -5095,6 +5233,7 @@ void array_tpd_node::translate(int ctx)
 			}
 		}
 	}
+	return 0;
 }
 
 //-------------------------------------------------------------------
@@ -5110,7 +5249,7 @@ varying_tpd_node::varying_tpd_node(token* t_string,
 	CONS4(t_string, t_lbr, size, t_rbr);
 }
 
-void varying_tpd_node::attrib(int ctx)
+int varying_tpd_node::attrib(int ctx)
 {
 	size->attrib(ctx_component);
 	if (use_c_strings && (ctx == ctx_record || ctx == ctx_component)) {
@@ -5119,9 +5258,10 @@ void varying_tpd_node::attrib(int ctx)
 	else {
 		type = &varying_string_type;
 	}
+	return 0;
 }
 
-void varying_tpd_node::translate(int)
+int varying_tpd_node::translate(int)
 {
 	f_tkn = t_string;
 	l_tkn = t_rbr;
@@ -5135,6 +5275,7 @@ void varying_tpd_node::translate(int)
 		t_rbr->set_trans(">");
 		t_string->set_trans("varying_string");
 	}
+	return 0;
 }
 //-------------------------------------------------------------------
 
@@ -5146,7 +5287,7 @@ string_tpd_node::string_tpd_node(token* t_string) : tpd_node(tpd_string)
 	CONS1(t_string);
 }
 
-void string_tpd_node::attrib(int ctx)
+int string_tpd_node::attrib(int ctx)
 {
 	if (use_c_strings && (ctx == ctx_record || ctx == ctx_component)) {
 		type = &string_type;
@@ -5154,14 +5295,16 @@ void string_tpd_node::attrib(int ctx)
 	else {
 		type = &varying_string_type;
 	}
+	return 0;
 }
 
-void string_tpd_node::translate(int)
+int string_tpd_node::translate(int)
 {
 	f_tkn = l_tkn = t_string;
 	if (type->tag == tp_string) {
 		f_tkn->set_trans("asciiz");
 	}
+	return 0;
 }
 
 //----------------------------------------------------------------------
@@ -5172,19 +5315,21 @@ ptr_tpd_node::ptr_tpd_node(token* tkn_ref, tpd_node* tpd)
 	CONS2(tkn_ref, tpd);
 }
 
-void ptr_tpd_node::attrib(int)
+int ptr_tpd_node::attrib(int)
 {
 	tpd->attrib(ctx_reftyp);
 	type = (tpd->type->tag == tp_fwd_ref)
 		? tpd->type : new ref_tp(tpd->type, this);
+	return 0;
 }
 
-void ptr_tpd_node::translate(int)
+int ptr_tpd_node::translate(int)
 {
 	tkn_ref->disable();
 	tpd->translate(ctx_reftyp);
 	f_tkn = tpd->f_tkn;
 	l_tkn = tpd->l_tkn->append("*");
+	return 0;
 }
 
 variant_node::variant_node(expr_node* tag_list, token* t_coln,
@@ -5197,7 +5342,7 @@ variant_node::variant_node(expr_node* tag_list, token* t_coln,
 
 int variant_node::number;
 
-void variant_node::attrib(int ctx)
+int variant_node::attrib(int ctx)
 {
 	tag_list->attrib(ctx);
 
@@ -5220,9 +5365,10 @@ void variant_node::attrib(int ctx)
 		fields->attrib(ctx);
 		struct_path = save_path;
 	}
+	return 0;
 }
 
-void variant_node::translate(int ctx)
+int variant_node::translate(int ctx)
 {
 	tag_list->translate(ctx);
 	f_tkn = t_lpar;
@@ -5253,6 +5399,7 @@ void variant_node::translate(int ctx)
 	else {
 		token::disable(tag_list->f_tkn, t_lpar->prev);
 	}
+	return 0;
 }
 
 
@@ -5270,7 +5417,7 @@ variant_part_node::variant_part_node(token* t_case, selector_node* selector,
 	CONS4(t_case, selector, t_of, variants);
 }
 
-void variant_part_node::attrib(int ctx)
+int variant_part_node::attrib(int ctx)
 {
 	selector->tag_type->attrib(ctx);
 	if (selector->tag_field != NULL) {
@@ -5294,9 +5441,10 @@ void variant_part_node::attrib(int ctx)
 			vp->attrib(ctx);
 		}
 	}
+	return 0;
 }
 
-void variant_part_node::translate(int ctx)
+int variant_part_node::translate(int ctx)
 {
 	f_tkn = t_case;
 	l_tkn = t_of;
@@ -5333,6 +5481,7 @@ void variant_part_node::translate(int ctx)
 	if (ctx != ctx_union) {
 		force_semicolon();
 	}
+	return 0;
 }
 
 field_list_node::field_list_node(var_decl_node* fix_part,
@@ -5347,7 +5496,7 @@ int field_list_node::is_single()
 		(fix_part->vars->next == NULL && fix_part->next == NULL)));
 }
 
-void field_list_node::attrib(int)
+int field_list_node::attrib(int)
 {
 	ctx = (smart_union && fix_part == NULL && var_part != NULL
 		&& var_part->selector->tag_field == NULL)
@@ -5362,9 +5511,10 @@ void field_list_node::attrib(int)
 		var_part->attrib(ctx);
 		variant_node::number = save_number;
 	}
+	return 0;
 }
 
-void field_list_node::translate(int)
+int field_list_node::translate(int)
 {
 	f_tkn = l_tkn = NULL;
 
@@ -5381,6 +5531,7 @@ void field_list_node::translate(int)
 	if (l_tkn != NULL) {
 		force_semicolon();
 	}
+	return 0;
 }
 
 object_tpd_node::object_tpd_node(token* t_object,
@@ -5391,7 +5542,7 @@ object_tpd_node::object_tpd_node(token* t_object,
 	CONS6(t_object, t_lbr, t_superclass, t_rbr, fields, t_end);
 }
 
-void object_tpd_node::attrib(int)
+int object_tpd_node::attrib(int)
 {
 	if (t_superclass != NULL) {
 		super = b_ring::search_cur(t_superclass);
@@ -5411,9 +5562,10 @@ void object_tpd_node::attrib(int)
 		dcl->attrib(ctx_object);
 	}
 	b_ring::pop();
+	return 0;
 }
 
-void object_tpd_node::translate(int)
+int object_tpd_node::translate(int)
 {
 	f_tkn = t_object;
 	l_tkn = t_end;
@@ -5435,6 +5587,7 @@ void object_tpd_node::translate(int)
 	t_object->set_trans("class ");
 	t_end->set_trans("}");
 	t_end->set_bind(t_object);
+	return 0;
 }
 
 
@@ -5445,7 +5598,7 @@ record_tpd_node::record_tpd_node(token* t_packed, token* t_record,
 	CONS4(t_packed, t_record, fields, t_end);
 }
 
-void record_tpd_node::attrib(int ctx)
+int record_tpd_node::attrib(int ctx)
 {
 	type = new record_tp(this);
 	static record_tpd_node* cur_outer;
@@ -5459,9 +5612,10 @@ void record_tpd_node::attrib(int ctx)
 	b_ring::pop();
 	struct_path = save_path;
 	cur_outer = outer;
+	return 0;
 }
 
-void record_tpd_node::translate(int ctx)
+int record_tpd_node::translate(int ctx)
 {
 	fields->translate(ctx);
 	f_tkn = t_record;
@@ -5486,6 +5640,7 @@ void record_tpd_node::translate(int ctx)
 	if (t_packed) {
 		t_packed->disable();
 	}
+	return 0;
 }
 
 
@@ -5520,13 +5675,14 @@ file_tpd_node::file_tpd_node(token* t_packed, token* t_file, token* t_of, tpd_no
 	CONS4(t_packed, t_file, t_of, recordtp);
 }
 
-void file_tpd_node::attrib(int ctx)
+int file_tpd_node::attrib(int ctx)
 {
 	recordtp->attrib(ctx);
 	type = new file_tp(recordtp->type, this);
+	return 0;
 }
 
-void file_tpd_node::translate(int ctx)
+int file_tpd_node::translate(int ctx)
 {
 	recordtp->translate(ctx);
 	f_tkn = t_file;
@@ -5543,6 +5699,7 @@ void file_tpd_node::translate(int ctx)
 		recordtp->f_tkn->prepend("<");
 		l_tkn = recordtp->l_tkn->append(">");
 	}
+	return 0;
 }
 
 
@@ -5553,13 +5710,14 @@ set_tpd_node::set_tpd_node(token* t_packed, token* t_set, token* t_of,
 	CONS4(t_packed, t_set, t_of, elemtp);
 }
 
-void set_tpd_node::attrib(int ctx)
+int set_tpd_node::attrib(int ctx)
 {
 	elemtp->attrib(ctx);
 	type = new set_tp(elemtp->type);
+	return 0;
 }
 
-void set_tpd_node::translate(int ctx)
+int set_tpd_node::translate(int ctx)
 {
 	elemtp->translate(ctx);
 	l_tkn = f_tkn = t_set;
@@ -5579,5 +5737,6 @@ void set_tpd_node::translate(int ctx)
 		}
 		token::disable(t_set->next, elemtp->l_tkn);
 	}
+	return 0;
 }
 

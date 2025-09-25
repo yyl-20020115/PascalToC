@@ -213,7 +213,7 @@ void output_context::output(token* t)
 	// if there are space tokens before (after) generated token
 	//
 	char* out = t->out_text;
-	int len = strlen(out);
+	int len =(int) strlen(out);
 
 	if (t->cat == CAT_GEN) {
 		if (out[0] == ' ' && (prev_tag == TKN_SPACE || prev_tag == TKN_LN)) {

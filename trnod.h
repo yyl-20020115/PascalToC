@@ -48,8 +48,8 @@ class node : public heap_object {
 
     node() { f_tkn = l_tkn = NULL; }
 
-    virtual void attrib(int ctx);
-    virtual void translate(int ctx);
+    virtual int attrib(int ctx);
+    virtual int translate(int ctx);
 };
 
 class token_list : public heap_object {
@@ -82,8 +82,8 @@ class import_list_node : public node {
     
     import_list_node(token* lpar, token_list* params, token* rpar); 
       
-    virtual void attrib(int ctx);
-    virtual void translate(int ctx);
+    virtual int attrib(int ctx);
+    virtual int translate(int ctx);
 };
 
 
@@ -100,8 +100,8 @@ class program_node : public node {
     program_node(token* program, token* name, import_list_node* params, 
 		 token* semi, block_node* body, token* end); 
 
-    virtual void attrib(int ctx);
-    virtual void translate(int ctx);
+    virtual int attrib(int ctx);
+    virtual int translate(int ctx);
 };
 
 
@@ -116,8 +116,8 @@ class module_node : public node {
     module_node(token* program, token* name, import_list_node* params, 
 		token* semi, decl_node* decls);
 
-    virtual void attrib(int ctx);
-    virtual void translate(int ctx);
+    virtual int attrib(int ctx);
+    virtual int translate(int ctx);
 };
 
 class unit_node : public node { 
@@ -143,8 +143,8 @@ class unit_node : public node {
 	      token* t_end, token* t_dot);
 
 
-    virtual void attrib(int ctx);
-    virtual void translate(int ctx);
+    virtual int attrib(int ctx);
+    virtual int translate(int ctx);
 };
 
 
@@ -155,8 +155,8 @@ class block_node : public node {
 
     block_node(decl_node* decls, compound_node* body);
 
-    virtual void attrib(int ctx);
-    virtual void translate(int ctx);
+    virtual int attrib(int ctx);
+    virtual int translate(int ctx);
 };
 
 //=============================================================================
@@ -202,8 +202,8 @@ class label_node : public stmt_node {
 
     label_node(token* ident, token* colon, stmt_node* stmt);
 
-    virtual void attrib(int ctx);
-    virtual void translate(int ctx);
+    virtual int attrib(int ctx);
+    virtual int translate(int ctx);
 };
 
 class with_node : public stmt_node { 
@@ -218,8 +218,8 @@ class with_node : public stmt_node {
 
     with_node(token* t_with, expr_node* ptrs, token* t_do, stmt_node* body); 
 
-    virtual void attrib(int ctx);
-    virtual void translate(int ctx);
+    virtual int attrib(int ctx);
+    virtual int translate(int ctx);
 };
 
 class pcall_node : public stmt_node { 
@@ -228,8 +228,8 @@ class pcall_node : public stmt_node {
 
     pcall_node(expr_node* fcall);
 
-    virtual void attrib(int ctx);
-    virtual void translate(int ctx);
+    virtual int attrib(int ctx);
+    virtual int translate(int ctx);
 };
 
 class read_node : public stmt_node { 
@@ -239,8 +239,8 @@ class read_node : public stmt_node {
 
     read_node(token* t_read, expr_group_node* params = NULL);
 
-    virtual void attrib(int ctx);
-    virtual void translate(int ctx);
+    virtual int attrib(int ctx);
+    virtual int translate(int ctx);
 };
 
 class write_list_node;
@@ -252,8 +252,8 @@ class write_node : public stmt_node {
 
     write_node(token* t_write, write_list_node* params = NULL);
 
-    virtual void attrib(int ctx);
-    virtual void translate(int ctx);
+    virtual int attrib(int ctx);
+    virtual int translate(int ctx);
 };
 
 
@@ -264,8 +264,8 @@ class compound_node : public stmt_node {
 
     compound_node(token* t_begin,  stmt_node* body, token* t_end);
 
-    virtual void attrib(int ctx);
-    virtual void translate(int ctx);
+    virtual int attrib(int ctx);
+    virtual int translate(int ctx);
     virtual bool is_compound(); 
 };
 
@@ -280,8 +280,8 @@ class assign_node : public stmt_node {
 
     assign_node(expr_node* lval, token* assign, expr_node* rval);
 
-    virtual void attrib(int ctx);
-    virtual void translate(int ctx);
+    virtual int attrib(int ctx);
+    virtual int translate(int ctx);
 };
 
 class goto_node : public stmt_node {
@@ -291,8 +291,8 @@ class goto_node : public stmt_node {
 
     goto_node(token* t_goto, token* t_label);
 
-    virtual void attrib(int ctx);
-    virtual void translate(int ctx);
+    virtual int attrib(int ctx);
+    virtual int translate(int ctx);
 };
 
 
@@ -305,8 +305,8 @@ class case_node : public node {
  
     case_node(expr_node*, token* coln, stmt_node* stmt); 
 
-    virtual void attrib(int ctx);
-    virtual void translate(int ctx);
+    virtual int attrib(int ctx);
+    virtual int translate(int ctx);
 };
 
 class switch_node : public stmt_node {
@@ -319,8 +319,8 @@ class switch_node : public stmt_node {
     switch_node(token* t_case, expr_node* expr, token* t_of, case_node* cases,
 		token* t_end);
 
-    virtual void attrib(int ctx);
-    virtual void translate(int ctx);
+    virtual int attrib(int ctx);
+    virtual int translate(int ctx);
 };
 
 
@@ -335,8 +335,8 @@ class if_node : public stmt_node {
     if_node(token* t_if, expr_node* expr, token* t_then, stmt_node* alt1, 
 	    token* t_else = NULL, stmt_node* alt2 = NULL); 
 
-    virtual void attrib(int ctx);
-    virtual void translate(int ctx);
+    virtual int attrib(int ctx);
+    virtual int translate(int ctx);
 };
 
 class for_node : public stmt_node {
@@ -349,8 +349,8 @@ class for_node : public stmt_node {
     for_node(token* t_for, token* t_ident, token* t_asg,  expr_node* from, 
 	     token* t_to, expr_node* till, token* t_do, stmt_node* body);
 
-    virtual void attrib(int ctx);
-    virtual void translate(int ctx);
+    virtual int attrib(int ctx);
+    virtual int translate(int ctx);
 };
 
 class while_node : public stmt_node {
@@ -361,8 +361,8 @@ class while_node : public stmt_node {
 
     while_node(token* t_while, expr_node* expr, token* t_do, stmt_node* body); 
 
-    virtual void attrib(int ctx);
-    virtual void translate(int ctx);
+    virtual int attrib(int ctx);
+    virtual int translate(int ctx);
 };
 
 class repeat_node : public stmt_node {
@@ -373,8 +373,8 @@ class repeat_node : public stmt_node {
 
     repeat_node(token* t_repeat, stmt_node* body, token* t_until, expr_node* expr); 
 
-    virtual void attrib(int ctx);
-    virtual void translate(int ctx);
+    virtual int attrib(int ctx);
+    virtual int translate(int ctx);
 };
 
 class return_node : public stmt_node {
@@ -383,8 +383,8 @@ class return_node : public stmt_node {
 
     return_node(token* t_return);
 
-    virtual void attrib(int ctx);
-    virtual void translate(int ctx);
+    virtual int attrib(int ctx);
+    virtual int translate(int ctx);
 };
 
 class empty_node : public stmt_node {
@@ -392,8 +392,8 @@ class empty_node : public stmt_node {
     token* last; 
     empty_node(token* last);
 
-    virtual void attrib(int ctx);
-    virtual void translate(int ctx);
+    virtual int attrib(int ctx);
+    virtual int translate(int ctx);
 };
 
 //=============================================================================
@@ -516,8 +516,8 @@ class atom_expr_node : public expr_node {
  
     atom_expr_node(token* tkn);
 
-    virtual void attrib(int ctx);
-    virtual void translate(int ctx);
+    virtual int attrib(int ctx);
+    virtual int translate(int ctx);
 };
 
 class literal_node : public expr_node {
@@ -532,8 +532,8 @@ class integer_node : public literal_node {
     int  radix; 
     integer_node(token* value_str);   
 
-    virtual void attrib(int ctx);
-    virtual void translate(int ctx);
+    virtual int attrib(int ctx);
+    virtual int translate(int ctx);
 };
 
 
@@ -541,8 +541,8 @@ class real_node : public literal_node {
   public:
     real_node(token* value_str); 
 
-    virtual void attrib(int ctx);
-    virtual void translate(int ctx);
+    virtual int attrib(int ctx);
+    virtual int translate(int ctx);
 };
 
 
@@ -550,8 +550,8 @@ class string_node : public literal_node {
   public:
     string_node(token* value_str); 
 
-    virtual void attrib(int ctx);
-    virtual void translate(int ctx);
+    virtual int attrib(int ctx);
+    virtual int translate(int ctx);
 };
 
 class address_node : public expr_node {
@@ -560,8 +560,8 @@ class address_node : public expr_node {
   public:
     address_node(token* t_adr, expr_node* var); 
 
-    virtual void attrib(int ctx);
-    virtual void translate(int ctx);
+    virtual int attrib(int ctx);
+    virtual int translate(int ctx);
 };
 
 class case_range_node : public expr_node { 
@@ -570,8 +570,8 @@ class case_range_node : public expr_node {
     token*     t_range;  
     expr_node* to;
 
-    virtual void attrib(int ctx);
-    virtual void translate(int ctx);
+    virtual int attrib(int ctx);
+    virtual int translate(int ctx);
 
     case_range_node(expr_node* from, token* t_range, expr_node* to);
 };
@@ -590,8 +590,8 @@ class set_elem_node : public set_item_node {
   
     set_elem_node(expr_node* item); 
 
-    virtual void attrib(int ctx);
-    virtual void translate(int ctx);
+    virtual int attrib(int ctx);
+    virtual int translate(int ctx);
 };
 
 class set_range_node : public set_item_node { 
@@ -602,8 +602,8 @@ class set_range_node : public set_item_node {
    
     set_range_node(expr_node* low, token* dots, expr_node* high); 
 
-    virtual void attrib(int ctx);
-    virtual void translate(int ctx);
+    virtual int attrib(int ctx);
+    virtual int translate(int ctx);
 };
 
 
@@ -615,8 +615,8 @@ class set_node : public expr_node {
  
     set_node(token* t_lbr, set_item_node* items, token* t_rbr); 
 
-    virtual void attrib(int ctx);
-    virtual void translate(int ctx);
+    virtual int attrib(int ctx);
+    virtual int translate(int ctx);
 };
 
 class idx_expr_node : public expr_node { 
@@ -629,8 +629,8 @@ class idx_expr_node : public expr_node {
     idx_expr_node(expr_node* arr, token* t_lbr, expr_node* indices, 
                   token* t_rbr); 
 
-    virtual void attrib(int ctx);
-    virtual void translate(int ctx);
+    virtual int attrib(int ctx);
+    virtual int translate(int ctx);
 };
 
 
@@ -641,8 +641,8 @@ class deref_expr_node : public expr_node {
 
     deref_expr_node(expr_node* ptr, token* op); 
 
-    virtual void attrib(int ctx);
-    virtual void translate(int ctx);
+    virtual int attrib(int ctx);
+    virtual int translate(int ctx);
 };
 
 class access_expr_node : public expr_node { 
@@ -654,8 +654,8 @@ class access_expr_node : public expr_node {
 
     access_expr_node(expr_node* rec, token* pnt, token* field); 
 
-    virtual void attrib(int ctx);
-    virtual void translate(int ctx);
+    virtual int attrib(int ctx);
+    virtual int translate(int ctx);
 };
 
 class op_node : public expr_node {
@@ -667,8 +667,8 @@ public:
 
     op_node(int tag, expr_node* left, token* op, expr_node* right = NULL);
 
-    virtual void attrib(int ctx);
-    virtual void translate(int ctx);
+    virtual int attrib(int ctx);
+    virtual int translate(int ctx);
 };
 
 class fcall_node : public expr_node {
@@ -682,8 +682,8 @@ class fcall_node : public expr_node {
     fcall_node(expr_node* fptr, token* lpar, expr_node* args, 
                token* rpar);
 
-    virtual void attrib(int ctx);
-    virtual void translate(int ctx);
+    virtual int attrib(int ctx);
+    virtual int translate(int ctx);
 };
 
 class skipped_node : public expr_node { 
@@ -692,8 +692,8 @@ class skipped_node : public expr_node {
 
     skipped_node(token* comma);
  
-    virtual void attrib(int ctx);
-    virtual void translate(int ctx);
+    virtual int attrib(int ctx);
+    virtual int translate(int ctx);
 };
 
 
@@ -711,8 +711,8 @@ class loophole_node : public expr_node {
     loophole_node(token* t_loophole, token* t_lpar, tpd_node* tpd, token* t_comma, 
                   expr_node *expr, token* t_rpar);
 
-    virtual void attrib(int ctx);
-    virtual void translate(int ctx);
+    virtual int attrib(int ctx);
+    virtual int translate(int ctx);
 };
 
 class expr_group_node : public expr_node {
@@ -724,8 +724,8 @@ class expr_group_node : public expr_node {
 
     expr_group_node(token* lpar, expr_node* expr, token* rpar);
 
-    virtual void attrib(int ctx);
-    virtual void translate(int ctx);
+    virtual int attrib(int ctx);
+    virtual int translate(int ctx);
 };
 
 class field_init_node : public node {
@@ -737,8 +737,8 @@ class field_init_node : public node {
 
     field_init_node(token* t_field, token* t_coln, expr_node* value);
 
-    void attrib(tpexpr* record_type);
-    void translate();
+    int attrib(tpexpr* record_type);
+    int translate();
 };
 
 class record_constant_node : public expr_node {
@@ -749,8 +749,8 @@ class record_constant_node : public expr_node {
 
     record_constant_node(token* lpar, field_init_node* flist, token* rpar);
 
-    virtual void attrib(int ctx);
-    virtual void translate(int ctx);
+    virtual int attrib(int ctx);
+    virtual int translate(int ctx);
 };
 
 
@@ -766,8 +766,8 @@ class write_param_node : public expr_node {
 		     token* t_coln1 = NULL, expr_node* width = NULL,
 		     token* t_coln2 = NULL, expr_node* prec = NULL); 
 
-    virtual void attrib(int ctx);
-    virtual void translate(int ctx);
+    virtual int attrib(int ctx);
+    virtual int translate(int ctx);
 };
  
 
@@ -779,8 +779,8 @@ class write_list_node : public node {
 
     write_list_node(token* lpar, write_param_node* vals, token* rpar);
 
-    virtual void attrib(int ctx);
-    virtual void translate(int ctx);
+    virtual int attrib(int ctx);
+    virtual int translate(int ctx);
 };
 
 
@@ -854,8 +854,8 @@ class label_decl_part_node : public decl_node {
     label_decl_part_node(token* t_label, token_list* label_list, 
                          token* t_semi); 
 
-    virtual void attrib(int ctx);
-    virtual void translate(int ctx);
+    virtual int attrib(int ctx);
+    virtual int translate(int ctx);
 };
 
 //
@@ -873,8 +873,8 @@ class const_def_node : public decl_node {
 
     const_def_node(token* ident, token* equal, expr_node* value); 
 
-    virtual void attrib(int ctx);
-    virtual void translate(int ctx);
+    virtual int attrib(int ctx);
+    virtual int translate(int ctx);
 };
 
 
@@ -886,8 +886,8 @@ class typed_const_def_node : public const_def_node {
     typed_const_def_node(token* ident, token* coln, tpd_node* tpd, 
 			 token* equal, expr_node* constant); 
 
-    virtual void attrib(int ctx);
-    virtual void translate(int ctx);
+    virtual int attrib(int ctx);
+    virtual int translate(int ctx);
 };
 
 class const_def_part_node : public decl_node { 
@@ -897,8 +897,8 @@ class const_def_part_node : public decl_node {
 
     const_def_part_node(token* t_const, const_def_node* list); 
 
-    virtual void attrib(int ctx);
-    virtual void translate(int ctx);
+    virtual int attrib(int ctx);
+    virtual int translate(int ctx);
 };
 
 
@@ -916,8 +916,8 @@ class type_def_node : public decl_node {
   
     type_def_node(token* ident, token* equal, tpd_node* tpd); 
 
-    virtual void attrib(int ctx);
-    virtual void translate(int ctx);
+    virtual int attrib(int ctx);
+    virtual int translate(int ctx);
 };
 
 
@@ -928,8 +928,8 @@ public:
 
     type_def_part_node(token* t_type, type_def_node* list); 
 
-    virtual void attrib(int ctx);
-    virtual void translate(int ctx);
+    virtual int attrib(int ctx);
+    virtual int translate(int ctx);
 };
 
 //
@@ -946,8 +946,8 @@ class var_decl_node : public decl_node {
 
     var_decl_node(token_list* vars, token* coln, tpd_node* tpd);
 
-    virtual void attrib(int ctx);
-    virtual void translate(int ctx);
+    virtual int attrib(int ctx);
+    virtual int translate(int ctx);
 };
 
 
@@ -958,8 +958,8 @@ class var_decl_part_node : public decl_node {
 
     var_decl_part_node(token* t_var, var_decl_node* vars); 
 
-    virtual void attrib(int ctx);
-    virtual void translate(int ctx);
+    virtual int attrib(int ctx);
+    virtual int translate(int ctx);
 };
 
 
@@ -977,8 +977,8 @@ class var_origin_decl_node : public decl_node {
     var_origin_decl_node(token* t_ident, token* t_origin, 
                          expr_node *addr, token* t_colon, tpd_node *tpd); 
 
-    virtual void attrib(int ctx);
-    virtual void translate(int ctx);
+    virtual int attrib(int ctx);
+    virtual int translate(int ctx);
 };
 
  
@@ -995,8 +995,8 @@ class param_list_node : public node {
 
     param_list_node(token* lpar, decl_node* params, token* rpar);
   
-    virtual void attrib(int ctx);
-    virtual void translate(int ctx);
+    virtual int attrib(int ctx);
+    virtual int translate(int ctx);
 };
 
 class unit_spec_node : public decl_node { 
@@ -1011,8 +1011,8 @@ class unit_spec_node : public decl_node {
     unit_spec_node(token* t_unit, token* t_name, token* t_semi,
 		   token* t_interface, decl_node* decls);
   
-    virtual void attrib(int ctx);
-    virtual void translate(int ctx);
+    virtual int attrib(int ctx);
+    virtual int translate(int ctx);
 };
 
 class proc_decl_node : public decl_node {
@@ -1032,8 +1032,8 @@ class proc_decl_node : public decl_node {
     proc_decl_node(token* t_proc, token* t_ident,  param_list_node* params,
                    token* t_coln = NULL, tpd_node* ret_type = NULL); 
   
-    virtual void attrib(int ctx);
-    virtual void translate(int ctx);
+    virtual int attrib(int ctx);
+    virtual int translate(int ctx);
 };
 
 class proc_fwd_decl_node : public proc_decl_node {
@@ -1050,8 +1050,8 @@ class proc_fwd_decl_node : public proc_decl_node {
                        token* t_semi1, token_list* qualifiers = NULL, 
 		       token* t_semi2 = NULL); 
   
-    virtual void attrib(int ctx);
-    virtual void translate(int ctx);
+    virtual int attrib(int ctx);
+    virtual int translate(int ctx);
 };
 
 
@@ -1073,8 +1073,8 @@ class proc_def_node : public proc_decl_node {
 		  token* t_coln, tpd_node* ret_type, 
 		  token* t_semi1, token* t_attrib, token* t_semi2, block_node* block, token* t_semi3); 
   
-    virtual void attrib(int ctx);
-    virtual void translate(int ctx);
+    virtual int attrib(int ctx);
+    virtual int translate(int ctx);
 };
 
 
@@ -1102,8 +1102,8 @@ class simple_tpd_node: public tpd_node {
 
     simple_tpd_node(token* tkn);
 
-    virtual void attrib(int ctx);
-    virtual void translate(int ctx);
+    virtual int attrib(int ctx);
+    virtual int translate(int ctx);
 };
 
 //
@@ -1121,8 +1121,8 @@ class fptr_tpd_node : public tpd_node {
     fptr_tpd_node(token* t_proc, param_list_node* params, 
 		  token* t_coln = NULL, tpd_node* ret_type = NULL);
 
-    virtual void attrib(int ctx);
-    virtual void translate(int ctx);
+    virtual int attrib(int ctx);
+    virtual int translate(int ctx);
 };
 
 //
@@ -1137,8 +1137,8 @@ class enum_tpd_node : public tpd_node {
       
     enum_tpd_node(token* lpar, token_list* items, token* rpar); 
 
-    virtual void attrib(int ctx);
-    virtual void translate(int ctx);
+    virtual int attrib(int ctx);
+    virtual int translate(int ctx);
 };
 
 //
@@ -1155,8 +1155,8 @@ class range_tpd_node: public tpd_node {
 
     range_tpd_node(expr_node* low, token* dots, expr_node* high);
 
-    virtual void attrib(int ctx);
-    virtual void translate(int ctx);
+    virtual int attrib(int ctx);
+    virtual int translate(int ctx);
 };
 
 //
@@ -1176,8 +1176,8 @@ class type_index_node : public idx_node {
 
     type_index_node(tpd_node* tpd);
 
-    virtual void attrib(int ctx);
-    virtual void translate(int ctx);
+    virtual int attrib(int ctx);
+    virtual int translate(int ctx);
 };
 
     
@@ -1189,8 +1189,8 @@ class range_index_node : public idx_node {
 
     range_index_node(expr_node *low, token* dots, expr_node* high);
 
-    virtual void attrib(int ctx);
-    virtual void translate(int ctx);
+    virtual int attrib(int ctx);
+    virtual int translate(int ctx);
 };
 
 
@@ -1205,8 +1205,8 @@ class conformant_index_node : public idx_node {
     conformant_index_node(token *low, token *dots, token *high, token *coln, 
                           tpd_node* tpd); 
 
-    virtual void attrib(int ctx);
-    virtual void  translate(int ctx);
+    virtual int attrib(int ctx);
+    virtual int translate(int ctx);
 };
 
 
@@ -1226,8 +1226,8 @@ class array_tpd_node: public tpd_node {
                    token* t_lbr, idx_node *indices, 
                    token* t_rbr, token* t_of, tpd_node *eltd);
 
-    virtual void attrib(int ctx);
-    virtual void translate(int ctx);
+    virtual int attrib(int ctx);
+    virtual int translate(int ctx);
 };
 
 //
@@ -1244,8 +1244,8 @@ class varying_tpd_node: public tpd_node {
     varying_tpd_node(token *t_string, token* t_lbr, expr_node *size, 
 		     token* t_rbr);
 
-    virtual void attrib(int ctx);
-    virtual void translate(int ctx);
+    virtual int attrib(int ctx);
+    virtual int translate(int ctx);
 };
 
 class string_tpd_node: public tpd_node {
@@ -1254,8 +1254,8 @@ class string_tpd_node: public tpd_node {
 
     string_tpd_node(token *t_string);
 
-    virtual void attrib(int ctx);
-    virtual void translate(int ctx);
+    virtual int attrib(int ctx);
+    virtual int translate(int ctx);
 };
 
 //
@@ -1269,8 +1269,8 @@ class ptr_tpd_node: public tpd_node {
 
     ptr_tpd_node(token* tkn_ref, tpd_node* tpd);
 
-    virtual void attrib(int ctx);
-    virtual void translate(int ctx);
+    virtual int attrib(int ctx);
+    virtual int translate(int ctx);
 };
 
 // 
@@ -1295,8 +1295,8 @@ class variant_node : public node {
     variant_node(expr_node* tag_list, token* t_coln, 
                  token* t_lpar, field_list_node* fields, token* t_rpar); 
 
-    virtual void attrib(int ctx);
-    virtual void translate(int ctx);
+    virtual int attrib(int ctx);
+    virtual int translate(int ctx);
 };
 
 class selector_node : public node { 
@@ -1320,8 +1320,8 @@ class variant_part_node : public node {
     variant_part_node(token* t_case, selector_node* selector, token* t_of,
 		      variant_node* variants);
 
-    virtual void attrib(int ctx);
-    virtual void translate(int ctx);
+    virtual int attrib(int ctx);
+    virtual int translate(int ctx);
 };
 
 class field_list_node : public node { 
@@ -1335,8 +1335,8 @@ class field_list_node : public node {
     field_list_node(var_decl_node* fix_part, 
                     variant_part_node* var_part = NULL); 
    
-    virtual void attrib(int ctx);
-    virtual void translate(int ctx);
+    virtual int attrib(int ctx);
+    virtual int translate(int ctx);
 };
 
 
@@ -1353,8 +1353,8 @@ class record_tpd_node : public tpd_node {
 
     void assign_name();
 
-    virtual void attrib(int ctx);
-    virtual void translate(int ctx);
+    virtual int attrib(int ctx);
+    virtual int translate(int ctx);
 };
 
 //
@@ -1375,8 +1375,8 @@ class object_tpd_node : public tpd_node {
     object_tpd_node(token* t_object, token* t_lbr, token* t_superclass, token* t_rbr, 
                     decl_node* fields, token* t_end);  
 
-    virtual void attrib(int ctx);
-    virtual void translate(int ctx);
+    virtual int attrib(int ctx);
+    virtual int translate(int ctx);
 };
 
 
@@ -1394,8 +1394,8 @@ class file_tpd_node : public tpd_node {
 
     file_tpd_node(token* t_packed, token* t_file, token* t_of, tpd_node* recordtp); 
 
-    virtual void attrib(int ctx);
-    virtual void translate(int ctx);
+    virtual int attrib(int ctx);
+    virtual int translate(int ctx);
 };
 
 //
@@ -1411,8 +1411,8 @@ class set_tpd_node : public tpd_node {
 
     set_tpd_node(token* t_packed, token* t_set, token* t_of, tpd_node* elemtp);
  
-    virtual void attrib(int ctx);
-    virtual void translate(int ctx);
+    virtual int attrib(int ctx);
+    virtual int translate(int ctx);
 };
 
 

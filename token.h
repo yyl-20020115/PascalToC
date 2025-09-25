@@ -57,6 +57,9 @@ class token : public heap_object {
     token(char const* v_text, int v_tag = TKN_GEN, int v_line = 0, int v_pos = 0,
 	  nm_entry *nm = NULL) 
     { 
+        //if (v_text != NULL && v_tag == TKN_STRING) {
+        //    v_tag = TKN_IDENT;
+        //}
         line = v_line;
 	attr = 0;
         pos = v_pos;

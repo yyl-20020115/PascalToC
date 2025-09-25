@@ -1814,16 +1814,17 @@ static use_ctx* use_chain;
 // Token generator function
 
 int tkn(int tag) {
-	curr_token = new token(text ? text : strdup(yytext),
+	curr_token = new token(text ? text : _strdup(yytext),
 		tag, line, pos, nm);
-	if(token::dummy.prev!=NULL 
-		&& token::dummy.prev->in_text!=NULL
-		&& 0 == strcmp(token::dummy.prev->in_text, "(")
-		&& token::dummy.prev->prev!=NULL
-		&& token::dummy.prev->prev->in_text!=NULL
-		&& 0 == strcmp(token::dummy.prev->prev->in_text, "sizeof")
+	if(token::dummy.prev_relevant()!=NULL 
+		&& token::dummy.prev_relevant()->in_text!=NULL
+		&& 0 == strcmp(token::dummy.prev_relevant()->in_text, "(")
+		&& token::dummy.prev_relevant()->prev_relevant() !=NULL
+		&& token::dummy.prev_relevant()->prev_relevant()->in_text!=NULL
+		&& 0 == strcmp(token::dummy.prev_relevant()->prev_relevant()->in_text, "sizeof")
 		&& curr_token->tag != TKN_IDENT)
 	{
+		//token* pr = token::dummy.prev_relevant();
 		//NOTICE:FIXME:
 		//sizeof(String) is not recognized well
 		//we fix this by back tracing,
@@ -1843,8 +1844,6 @@ int tkn(int tag) {
 	}
 	return 1;
 }
-
-
 
 // Include file name processing
 
@@ -2031,7 +2030,7 @@ YY_MALLOC_DECL
   */
 #ifndef YY_INPUT
 #define YY_INPUT(buf,result,max_size) \
-	if ( (result = read( fileno(yyin), (char *) buf, max_size )) < 0 ) \
+	if ( (result = read( _fileno(yyin), (char *) buf, max_size )) < 0 ) \
 		YY_FATAL_ERROR( "input in flex scanner failed" );
 #endif
 
@@ -2331,7 +2330,7 @@ YY_USER_ACTION
 		next_dir++;
 	}
  else {
-  dir_length = strlen(try_dir);
+  dir_length = (int)strlen(try_dir);
 }
 xname = dprintf("%.*s" FILE_SEP "%s", dir_length, try_dir, fname);
 if ((in = fopen(xname, "r")) != NULL) {
@@ -2632,7 +2631,7 @@ if (tag == TKN_RESERVED) {
 	tag = TKN_IDENT;
 }
 else if (!preserve_case || tag != TKN_IDENT) {
- text = strdup(lc_buf);
+ text = _strdup(lc_buf);
 }
 return tkn(tag);
   }
@@ -3226,7 +3225,7 @@ FILE* file;
 
 	b->yy_buf_pos = &b->yy_ch_buf[1];
 
-	b->yy_is_interactive = file ? isatty(fileno(file)) : 0;
+	b->yy_is_interactive = file ? isatty(_fileno(file)) : 0;
 
 	b->yy_fill_buffer = 1;
 
